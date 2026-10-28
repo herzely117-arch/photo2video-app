@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Photo → Video AI</title>
+<title>Photo ← Video AI</title>
 <link rel="icon" href="logo.png">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
@@ -41,7 +41,7 @@ h2{font-size:17px;margin:22px 0 10px;display:flex;align-items:center;gap:8px}
 </style>
 </head>
 <body>
-<div class="hero"><div class="brand"><img src="logo.png" alt=""><div><h1>Photo → Video AI</h1><p>תמונה או טקסט → סרטון בשניות ✨</p></div></div></div>
+<div class="hero"><div class="brand"><img src="logo.png" alt=""><div><h1>Photo ← Video AI</h1><p>תמונה או טקסט ← סרטון בשניות ✨</p></div></div></div>
 <div class="wrap">
   <div class="steps"><i></i><i></i><i></i><i></i></div>
   <div class="top"><span></span><span id="hist" class="chip">📂 הסרטונים שלי</span></div>
@@ -64,13 +64,13 @@ let C=null;try{const h=new URLSearchParams(location.hash.slice(1)).get('c');let 
 const $=id=>document.getElementById(id);
 if(!C){document.querySelector('.wrap').innerHTML='<h2>פתח/י את האפליקציה מתוך הבוט 🙂</h2><p style="color:var(--hint)">שלח/י לבוט /app</p>';throw 0}
 const S={step:0,mode:'photo',t:null,m:null,d:null,a:null};
-const MODES=[['photo','📸','תמונה → וידאו','מעלים תמונה ובוחרים תבנית'],['flux','🖼','טקסט → תמונה → וידאו','כותבים רעיון, AI יוצר תמונה ומנפיש אותה'],['t2v','🎬','טקסט → וידאו','כותבים רעיון ומקבלים סרטון ישירות']];
+const MODES=[['photo','📸','תמונה ← וידאו','מעלים תמונה ובוחרים תבנית'],['flux','🖼','טקסט ← תמונה ← וידאו','כותבים רעיון, AI יוצר תמונה ומנפיש אותה'],['custom','📸','תמונה + תיאור ← וידאו','מעלים תמונה וכותבים מה יקרה בסרטון'],['t2v','🎬','טקסט ← וידאו','כותבים רעיון ומקבלים סרטון ישירות']];
 const ML=()=>S.mode=='t2v'?C.v:C.m;const curM=()=>ML().find(x=>x.k==S.m);
 const ICONS=['😊','💃','🎥','🛍','🖼','✨','🌟','🎞','🌈','🚀'],COL=['#7c3aed','#db2777','#0ea5e9','#f59e0b','#10b981','#ef4444'];
 const hap=t=>tg&&tg.HapticFeedback&&tg.HapticFeedback.selectionChanged();
 function meter(n){return '<div class="meter">'+[1,2,3,4,5].map(i=>`<span class="${i<=n?'on':''}"></span>`).join('')+'</div>'}
 function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
-function base(){if(S.mode=='flux')return C.fp;if(S.mode=='t2v')return (C.v[0]||{p:3}).p;const t=C.t.find(x=>x.h==S.t);return t?t.p:0}
+function base(){if(S.mode=='flux')return C.fp;if(S.mode=='custom')return C.cp||2;if(S.mode=='t2v')return (C.v[0]||{p:3}).p;const t=C.t.find(x=>x.h==S.t);return t?t.p:0}
 function dsel(){const m=curM();if(!m)return null;return m.ds.find(x=>x[0]==S.d)||m.ds[0]}
 function price(){const b=base();if(!b)return 0;const d=dsel();return b+(d?d[1]:0)+(S.a?C.ap:0)}
 function eta(){const d=dsel();return d?d[2]+(S.mode=='flux'?25:0):0}
@@ -86,7 +86,7 @@ function render(){
  $('audP').textContent=`+${C.ap}⭐ · מוזיקה/אווירה שנוצרת ב-AI`;$('sw').classList.toggle('on',!!S.a);$('audBox').classList.toggle('hide',!S.a);
  $('auds').innerHTML=C.a.map(a=>`<span class="chip ${S.a==a.k?'sel':''}" data-a="${a.k}">${esc(a.l)}</span>`).join('');
  const t=S.mode=='photo'?C.t.find(x=>x.h==S.t):{n:MODES.find(x=>x[0]==S.mode)[2]};
- $('s1i').textContent=S.mode=='photo'?'📸':'✍️';$('s1t').textContent=S.mode=='photo'?'שולחים תמונה בצ\'אט עם הבוט':'כותבים תיאור בצ\'אט (אפשר לשפר עם AI בחינם)';
+ $('s1i').textContent=S.mode=='t2v'||S.mode=='flux'?'✍️':'📸';$('s1t').textContent=S.mode=='custom'?'שולחים תמונה בצ\'אט וכותבים מה יקרה בסרטון (אפשר לשפר עם AI בחינם)':S.mode=='photo'?'שולחים תמונה בצ\'אט עם הבוט':'כותבים תיאור בצ\'אט (אפשר לשפר עם AI בחינם)';
  if(t&&m){$('sum').innerHTML=`<div class="t"><span>🎨 ${S.mode=='photo'?'תבנית':'סוג'}</span><b>${esc(t.n)}</b></div><div class="t"><span>🤖 מודל</span><b>${esc(m.l)}</b></div><div class="t"><span>⏱ אורך</span><b>${dsel()[0]} שניות</b></div><div class="t"><span>🔊 סאונד</span><b>${S.a?esc(C.a.find(x=>x.k==S.a).l):'ללא'}</b></div><div class="t"><span>⌛ זמן משוער</span><b>${fmt(eta()+(S.a?60:0))}</b></div><div class="t total"><span>סה"כ</span><span>${price()}⭐</span></div>`;$('etaL').textContent=`הסרטון נוצר (${fmt(eta())}) עם פס התקדמות חי`+(S.a?' + סאונד (כדקה)':'')}
  document.querySelectorAll('.steps i').forEach((e,i)=>e.classList.toggle('on',i<=S.step));
  ['s0','s1','s2','s3'].forEach((id,i)=>{const el=$(id);const h=i!=S.step;if(!h&&el.classList.contains('hide'))el.classList.add('fade');el.classList.toggle('hide',h)});
@@ -94,7 +94,7 @@ function render(){
  mainBtn();
 }
 function mainBtn(){if(!tg)return;const mb=tg.MainButton;let txt=null,ok=false;
- if(S.step==0){ok=S.mode!='photo'||!!S.t;txt=ok?'המשך ←':'⬇️ בחר/י תבנית למטה'}else if(S.step==1){txt='המשך ←';ok=!!S.m}else if(S.step==2){txt='לסיכום ←';ok=true}else{txt=`הזמן ב-${price()}⭐ ו${S.mode=='photo'?'שלח תמונה':'כתוב תיאור'}`;ok=$('terms').checked}
+ if(S.step==0){ok=S.mode!='photo'||!!S.t;txt=ok?'המשך ←':'⬇️ בחר/י תבנית למטה'}else if(S.step==1){txt='המשך ←';ok=!!S.m}else if(S.step==2){txt='לסיכום ←';ok=true}else{txt=`הזמן ב-${price()}⭐ ו${S.mode=='photo'?'שלח תמונה':S.mode=='custom'?'שלח תמונה ותיאור':'כתוב תיאור'}`;ok=$('terms').checked}
  mb.setText(txt);mb.show();ok?mb.enable():mb.disable();mb.color=ok?(tg.themeParams.button_color||'#8b5cf6'):'#777';
  tg.BackButton&&(S.step?tg.BackButton.show():tg.BackButton.hide())}
 function next(){if(S.step==0&&S.mode=='photo'&&!S.t||S.step==1&&!S.m)return;if(S.step<3){S.step++;render();scrollTo({top:0,behavior:'smooth'});return}
