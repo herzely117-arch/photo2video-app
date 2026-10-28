@@ -5,6 +5,13 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Photo2Video</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script>
+/* Telegram Mini Apps Analytics (TON Builders, required by tApps Center).
+   Fill TGA_TOKEN + TGA_APP_NAME from builders.ton.org -> Analytics. Empty = disabled (no-op). */
+var TGA_TOKEN='';
+var TGA_APP_NAME='';
+(function(){if(!TGA_TOKEN||!TGA_APP_NAME)return;try{var s=document.createElement('script');s.async=true;s.src='https://tganalytics.xyz/index.js';s.onload=function(){try{window.telegramAnalytics.init({token:TGA_TOKEN,appName:TGA_APP_NAME});}catch(e){}};document.head.appendChild(s);}catch(e){}})();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800&family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
 <style>
