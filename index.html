@@ -98,6 +98,7 @@ a{color:var(--acc)}
  </section>
  <section id="pVideos" class="hide"><div class="glass" style="padding:22px;text-align:center"><div style="font-size:50px">📂</div><h2 id="hVid" style="margin:8px 0"></h2><p id="vidP" style="color:var(--hint)"></p><button class="btn" id="hist"></button><button class="btn ghost" id="serB" style="margin-top:10px"></button></div></section>
  <section id="pGallery" class="hide"><h2 id="hGal"></h2><div class="gal" id="gal"></div><p class="note" id="galN"></p></section>
+ <section id="pStudio" class="hide"><h2 id="hStu"></h2><div class="grid" id="stu"></div><p class="note" id="stuN"></p><h2 id="hEng"></h2><div class="list" id="eng"></div></section>
  <section id="pInvite" class="hide">
   <div class="glass" style="padding:18px;text-align:center"><div style="color:var(--hint);font-size:13px" id="balL"></div><div class="big" id="bal"></div><div id="ffL" style="font-size:13px"></div></div>
   <h2 id="hInv"></h2><div class="glass" style="padding:16px"><div id="invP" style="font-size:14px;line-height:1.5"></div><div class="link" id="rlink"></div>
@@ -150,8 +151,8 @@ function hero(){$('hero').innerHTML=U.ff?`<span class="bal">🎁</span><b>${L('�
 function render(){
  $('modes').innerHTML=MODES.map((x,i)=>`<div class="card row ${S.mode==x[0]?'sel':''}" data-mo="${x[0]}" style="animation-delay:${i*40}ms"><div class="ic">${x[1]}</div><div style="flex:1"><b>${x[2]}</b><small>${x[3]}</small></div></div>`).join('');
  $('tplBox').classList.toggle('hide',S.mode!='photo');
- const tps=[...C.t].sort((a,b)=>(b.s||0)-(a.s||0));
- $('tpls').innerHTML=tps.map((t,i)=>{const g=GAL.find(x=>x.k==t.i);return `<div class="card ${S.t==t.h?'sel':''}" data-t="${t.h}" style="animation-delay:${i*30}ms">${g?`<div class="thumb" style="background-image:url(gallery/${g.k}.jpg)"></div>`:`<div class="ic" style="margin-bottom:8px">${ICONS[t.i]||'🎞'}</div>`}<span class="price">${PZ(t.p)}⭐</span><b>${esc(tn(t))}${t.s?`<span class="tag">${L('חג','Seasonal')}</span>`:''}</b><small>${esc(td(t))}</small></div>`}).join('');
+ const TR=C.tr||[],tps=[...C.t].sort((a,b)=>((TR.includes(b.h)?2:0)+(b.s||0))-((TR.includes(a.h)?2:0)+(a.s||0)));
+ $('tpls').innerHTML=tps.map((t,i)=>{const g=GAL.find(x=>x.k==t.i);return `<div class="card ${S.t==t.h?'sel':''}" data-t="${t.h}" style="animation-delay:${i*30}ms">${g?`<div class="thumb" style="background-image:url(gallery/${g.k}.jpg)"></div>`:`<div class="ic" style="margin-bottom:8px">${ICONS[t.i]||'🎞'}</div>`}<span class="price">${PZ(t.p)}⭐</span><b>${esc(tn(t))}${t.s?`<span class="tag">${L('חג','Seasonal')}</span>`:''}${TR.includes(t.h)?`<span class="tag">🔥 ${L('טרנדי','Trending')}</span>`:''}</b><small>${esc(td(t))}</small></div>`}).join('');
  $('models').innerHTML=ML().map(m=>`<div class="card row ${S.m==m.k?'sel':''}" data-m="${m.k}"><div class="ic">🤖</div><div style="flex:1"><b>${esc(m.l)}</b><small>${L('מהירות','Speed')}${meter(m.speed)} ${L('איכות','Quality')}${meter(m.quality)}</small></div><small>⏱ ${fmt(m.ds[0][2])}</small></div>`).join('');
  const m=curM(),tp=base()||1;
  $('durs').innerHTML=m?m.ds.map(d=>`<div class="card ${S.d==d[0]?'sel':''}" data-d="${d[0]}"><b>${d[0]} ${L('שניות','sec')}</b><small>${PZ(tp+d[1])}⭐ · ${fmt(d[2])}</small></div>`).join(''):''
@@ -181,7 +182,8 @@ function next(){if(!okStep()){if(S.step==3){hap('error');(tg?tg.showAlert.bind(t
  go(`app-${S.mode=='photo'?S.t:S.mode}-${S.m}-${dsel()[0]}-${S.a||'none'}-1-${LG}`)}
 function go(p){const u=`https://t.me/${C.b}?start=${p}`;hap('success');if(tg){tg.openTelegramLink(u);setTimeout(()=>tg.close(),300)}else location.href=u}
 function back(){if(S.step>0){S.step--;if(S.step==2&&S.mode=='series')S.step=1;render()}}
-document.body.addEventListener('click',e=>{const c=e.target.closest('[data-mo],[data-t],[data-m],[data-d],[data-a],[data-g],[data-tab],[data-b]');if(!c)return;hap();
+document.body.addEventListener('click',e=>{const c=e.target.closest('[data-mo],[data-t],[data-m],[data-d],[data-a],[data-g],[data-tab],[data-b],[data-x]');if(!c)return;hap();
+ if(c.dataset.x){go(c.dataset.x);return}
  if(c.dataset.tab){tab(c.dataset.tab);return}
  if(c.dataset.b){go('buy-'+c.dataset.b);return}
  if(c.dataset.g){const g=GAL.find(x=>x.k==c.dataset.g),t=C.t.find(x=>x.i==g.k);S.mode=g.mode||(t?'photo':'custom');S.t=t?t.h:null;S.step=0;S.m=null;tab('create');if(S.mode=='photo'&&S.t||S.mode!='photo')setTimeout(next,250);return}
@@ -208,15 +210,21 @@ $('shareB').onclick=()=>{hap();const u=`https://t.me/share/url?url=${encodeURICo
 $('copyB').onclick=()=>{navigator.clipboard&&navigator.clipboard.writeText(RL);hap('success');toast(L('הקישור הועתק ✓','Link copied ✓'))};
 $('hBuy').textContent=L('⭐ חבילות קרדיט','⭐ Credit bundles');
 $('bundles').innerHTML=(U.bn||[]).map((b,i)=>{const n=[5,12,25][i]||'',p=[4,9,18][i]||'';return `<div class="card row" data-b="${b[0]}"><div class="ic">${['📦','🎁','💎'][i]||'⭐'}</div><div style="flex:1"><b>${L(`${n} סרטונים במחיר ${p}`,`${n} videos for the price of ${p}`)}</b><small>${L(`משלמים ${b[2]}⭐ ← מקבלים ${b[3]}⭐ קרדיט`,`Pay ${b[2]}⭐ → get ${b[3]}⭐ credit`)}</small></div><span class="tag" dir="ltr">−${Math.round(100-b[2]/b[3]*100)}%</span></div>`}).join('')||`<p class="note">${L('שלח/י /buy לבוט','Send /buy to the bot')}</p>`;
+// studio
+$('hStu').textContent=L('🎨 סטודיו AI','🎨 AI Studio');$('hEng').textContent=L('🎁 בונוסים ואתגרים','🎁 Bonuses & challenges');
+$('stuN').textContent=L('מוצרי תמונה: רק חפצים, חיות, אוכל או דמויות מצוירות — בלי אנשים אמיתיים. נכשל? הכוכבים חוזרים לקרדיט.','Photo products: objects, pets, food or cartoon characters only — no real people. Failed? Stars go back to your credit.');
+$('stu').innerHTML=(C.x||[]).map((x,i)=>`<div class="card" data-x="st-${x.k}" style="animation-delay:${i*30}ms"><div class="ic" style="margin-bottom:8px">${x.e}</div><span class="price">${x.p}⭐</span><b>${esc(EN?x.ne:x.n)}</b><small>${esc(EN?x.de:x.d)}</small></div>`).join('');
+$('eng').innerHTML=[['checkin','🎁',L('צ\'ק-אין יומי','Daily check-in'),L(`+${(C.g||{}).ci||1}⭐ קרדיט כל יום`,`+${(C.g||{}).ci||1}⭐ credit every day`)],['earn','📲',L('פרסם והרווח','Post & earn'),L(`שתפו סרטון ב-TikTok/Reels וקבלו ${(C.g||{}).er||5}⭐`,`Share a video on TikTok/Reels, get ${(C.g||{}).er||5}⭐`)],['challenge','🏆',L('האתגר השבועי','Weekly challenge'),L(`פרס ${(C.g||{}).cp||50}⭐ לזוכה`,`${(C.g||{}).cp||50}⭐ prize for the winner`)],['trending','🔥',L('טרנדי השבוע','Trending this week'),L('התבניות הכי פופולריות','Most popular templates')]].map(x=>`<div class="card row" data-x="${x[0]}"><div class="ic">${x[1]}</div><div style="flex:1"><b>${x[2]}</b><small>${x[3]}</small></div></div>`).join('');
 // tabs
-const TABS=[['create','✨',L('יצירה','Create')],['videos','📂',L('הסרטונים שלי','My videos')],['gallery','🎞',L('דוגמאות','Gallery')],['invite','🎁',L('הזמן','Invite')]];
+const TABS=[['create','✨',L('יצירה','Create')],['videos','📂',L('הסרטונים שלי','My videos')],['gallery','🎞',L('דוגמאות','Gallery')],['studio','🎨',L('סטודיו','Studio')],['invite','🎁',L('הזמן','Invite')]];
 $('tabs').innerHTML=TABS.map(t=>`<button data-tab="${t[0]}"><i>${t[1]}</i>${t[2]}</button>`).join('');
 let galDone=false;
 function gallery(){if(galDone)return;galDone=true;$('gal').innerHTML=GAL.map((g,i)=>`<div class="gi sk" data-g="${g.k}" style="animation-delay:${i*50}ms"><video muted loop playsinline autoplay preload="metadata" poster="gallery/${g.k}.jpg" src="gallery/${g.k}.mp4"></video><div class="cap">${esc(g.n)}<small>🤖 ${g.m}</small></div></div>`).join('');
  document.querySelectorAll('.gi video').forEach(v=>{const done=()=>v.parentNode.classList.remove('sk');v.addEventListener('loadeddata',done);setTimeout(done,2500)})}
+const PG={create:'pCreate',videos:'pVideos',gallery:'pGallery',studio:'pStudio',invite:'pInvite'};
 function tab(k){S.tab=k;document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('on',b.dataset.tab==k));
- ({create:'pCreate',videos:'pVideos',gallery:'pGallery',invite:'pInvite'});['create','videos','gallery','invite'].forEach(x=>$({create:'pCreate',videos:'pVideos',gallery:'pGallery',invite:'pInvite'}[x]).classList.toggle('hide',x!=k));
- $({create:'pCreate',videos:'pVideos',gallery:'pGallery',invite:'pInvite'}[k]).classList.add('fade');if(k=='gallery')gallery();render();scrollTo({top:0})}
+ Object.keys(PG).forEach(x=>$(PG[x]).classList.toggle('hide',x!=k));
+ $(PG[k]).classList.add('fade');if(k=='gallery')gallery();render();scrollTo({top:0})}
 // onboarding
 function onboarding(){const SL=[['🎬',L('ברוכים הבאים!','Welcome!'),L('הופכים תמונה או רעיון לסרטון AI קצר — תוך דקה.','Turn a photo or an idea into a short AI video — in about a minute.')],
  ['🎨',L('בוחרים סגנון','Pick a style'),L('תבניות מוכנות, תיאור חופשי או טקסט בלבד. 5 מודלים לבחירה.','Ready templates, a free description, or just text. 5 models to choose from.')],
