@@ -140,8 +140,9 @@ function base(){if(S.mode=='flux')return C.fp;if(S.mode=='custom'||S.mode=='seri
 const dsel=()=>{const m=curM();return m?(m.ds.find(x=>x[0]==S.d)||m.ds[0]):null};
 const LP=()=>S.mode=='series'&&C.lp&&C.lp[S.m]&&S.d>=30?C.lp[S.m][S.d]:0;
 function vprice(){if(LP())return LP();const b=base();if(!b)return 0;const d=dsel();return b+(d?d[1]:0)}
-function price(){return vprice()+(S.a?C.ap:0)}
-function disc(){return U.ff&&S.mode!='series'?Math.max(1,Math.floor(vprice()/2))+(S.a?C.ap:0):price()}
+function PZ(n){return C.tp?1:n}
+function price(){if(C.tp)return 1;return vprice()+(S.a?C.ap:0)}
+function disc(){if(C.tp)return 1;return U.ff&&S.mode!='series'?Math.max(1,Math.floor(vprice()/2))+(S.a?C.ap:0):price()}
 const eta=()=>{if(LP())return Math.round(S.d/10)*150;const d=dsel();return d?d[2]+(S.mode=='flux'?25:0):0};
 const fmt=s=>s>=60?L(`כ-${Math.round(s/6)/10} דק'`,`~${Math.round(s/6)/10} min`):L(`כ-${s} שניות`,`~${s} sec`);
 function hero(){$('hero').innerHTML=U.ff?`<span class="bal">🎁</span><b>${L('הסרטון הראשון ב-50% הנחה!','Your first video is 50% off!')}</b><small>${L('ההנחה תופיע אוטומטית בחשבונית','Applied automatically on the invoice')}</small>`
@@ -150,13 +151,13 @@ function render(){
  $('modes').innerHTML=MODES.map((x,i)=>`<div class="card row ${S.mode==x[0]?'sel':''}" data-mo="${x[0]}" style="animation-delay:${i*40}ms"><div class="ic">${x[1]}</div><div style="flex:1"><b>${x[2]}</b><small>${x[3]}</small></div></div>`).join('');
  $('tplBox').classList.toggle('hide',S.mode!='photo');
  const tps=[...C.t].sort((a,b)=>(b.s||0)-(a.s||0));
- $('tpls').innerHTML=tps.map((t,i)=>{const g=GAL.find(x=>x.k==t.i);return `<div class="card ${S.t==t.h?'sel':''}" data-t="${t.h}" style="animation-delay:${i*30}ms">${g?`<div class="thumb" style="background-image:url(gallery/${g.k}.jpg)"></div>`:`<div class="ic" style="margin-bottom:8px">${ICONS[t.i]||'🎞'}</div>`}<span class="price">${t.p}⭐</span><b>${esc(tn(t))}${t.s?`<span class="tag">${L('חג','Seasonal')}</span>`:''}</b><small>${esc(td(t))}</small></div>`}).join('');
+ $('tpls').innerHTML=tps.map((t,i)=>{const g=GAL.find(x=>x.k==t.i);return `<div class="card ${S.t==t.h?'sel':''}" data-t="${t.h}" style="animation-delay:${i*30}ms">${g?`<div class="thumb" style="background-image:url(gallery/${g.k}.jpg)"></div>`:`<div class="ic" style="margin-bottom:8px">${ICONS[t.i]||'🎞'}</div>`}<span class="price">${PZ(t.p)}⭐</span><b>${esc(tn(t))}${t.s?`<span class="tag">${L('חג','Seasonal')}</span>`:''}</b><small>${esc(td(t))}</small></div>`}).join('');
  $('models').innerHTML=ML().map(m=>`<div class="card row ${S.m==m.k?'sel':''}" data-m="${m.k}"><div class="ic">🤖</div><div style="flex:1"><b>${esc(m.l)}</b><small>${L('מהירות','Speed')}${meter(m.speed)} ${L('איכות','Quality')}${meter(m.quality)}</small></div><small>⏱ ${fmt(m.ds[0][2])}</small></div>`).join('');
  const m=curM(),tp=base()||1;
- $('durs').innerHTML=m?m.ds.map(d=>`<div class="card ${S.d==d[0]?'sel':''}" data-d="${d[0]}"><b>${d[0]} ${L('שניות','sec')}</b><small>${tp+d[1]}⭐ · ${fmt(d[2])}</small></div>`).join(''):''
- if(m&&S.mode=='series'&&C.lp&&C.lp[m.k])$('durs').innerHTML+=Object.entries(C.lp[m.k]).map(([d,p])=>`<div class="card ${S.d==d?'sel':''}" data-d="${d}"><b>🎞 ${L('פרק ארוך','Long episode')} ~${d} ${L('שניות','sec')}</b><small>${p}⭐ · ${L(d/10+' סצנות',d/10+' scenes')} · ${fmt(d/10*150)}</small></div>`).join('');
+ $('durs').innerHTML=m?m.ds.map(d=>`<div class="card ${S.d==d[0]?'sel':''}" data-d="${d[0]}"><b>${d[0]} ${L('שניות','sec')}</b><small>${PZ(tp+d[1])}⭐ · ${fmt(d[2])}</small></div>`).join(''):''
+ if(m&&S.mode=='series'&&C.lp&&C.lp[m.k])$('durs').innerHTML+=Object.entries(C.lp[m.k]).map(([d,p])=>`<div class="card ${S.d==d?'sel':''}" data-d="${d}"><b>🎞 ${L('פרק ארוך','Long episode')} ~${d} ${L('שניות','sec')}</b><small>${PZ(p)}⭐ · ${L(d/10+' סצנות',d/10+' scenes')} · ${fmt(d/10*150)}</small></div>`).join('');
  $('durBox').classList.toggle('hide',!(m&&m.ds.length>1));
- $('audP').textContent=`+${C.ap}⭐ · `+L('מוזיקה/אווירה שנוצרת ב-AI','AI-generated music/ambience');$('sw').classList.toggle('on',!!S.a);$('audBox').classList.toggle('hide',!S.a);
+ $('audP').textContent=(C.tp?L('כלול (מצב בדיקה) · ','Included (test mode) · '):`+${C.ap}⭐ · `)+L('מוזיקה/אווירה שנוצרת ב-AI','AI-generated music/ambience');$('sw').classList.toggle('on',!!S.a);$('audBox').classList.toggle('hide',!S.a);
  $('audBox').innerHTML=C.a.map(a=>`<span class="chip ${S.a==a.k?'sel':''}" data-a="${a.k}">${esc(EN&&a.le?a.le:a.l)}</span>`).join('');
  const t=S.mode=='photo'?C.t.find(x=>x.h==S.t):null,tname=t?tn(t):MODES.find(x=>x[0]==S.mode)[2];
  if((t||S.mode!='photo')&&m){const pr=disc(),full=price();
@@ -228,5 +229,6 @@ if(tg){tg.MainButton.onClick(next);tg.BackButton.onClick(back);try{tg.setHeaderC
 hero();tab('create');
 if(!localStorage.getItem('p2v_onb'))onboarding();
 </script>
+<script>setTimeout(function(){try{if(C&&C.tp){var b=document.createElement('div');b.textContent=(C.lg=='en'?'🧪 Test mode: every item costs 1⭐':'🧪 מצב בדיקה: כל פריט עולה 1⭐');b.style.cssText='position:sticky;top:0;z-index:99;text-align:center;font-size:12px;font-weight:700;padding:6px;background:linear-gradient(90deg,#7c3aed,#db2777);color:#fff';document.body.prepend(b)}}catch(e){}},300)</script>
 </body>
 </html>
