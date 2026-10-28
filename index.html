@@ -96,7 +96,7 @@ a{color:var(--acc)}
    <label class="terms"><input type="checkbox" id="terms"><span id="termsL"></span></label></div>
   <button class="btn ghost hide" id="back"></button>
  </section>
- <section id="pVideos" class="hide"><div class="glass" style="padding:22px;text-align:center"><div style="font-size:50px">📂</div><h2 id="hVid" style="margin:8px 0"></h2><p id="vidP" style="color:var(--hint)"></p><button class="btn" id="hist"></button></div></section>
+ <section id="pVideos" class="hide"><div class="glass" style="padding:22px;text-align:center"><div style="font-size:50px">📂</div><h2 id="hVid" style="margin:8px 0"></h2><p id="vidP" style="color:var(--hint)"></p><button class="btn" id="hist"></button><button class="btn ghost" id="serB" style="margin-top:10px"></button></div></section>
  <section id="pGallery" class="hide"><h2 id="hGal"></h2><div class="gal" id="gal"></div><p class="note" id="galN"></p></section>
  <section id="pInvite" class="hide">
   <div class="glass" style="padding:18px;text-align:center"><div style="color:var(--hint);font-size:13px" id="balL"></div><div class="big" id="bal"></div><div id="ffL" style="font-size:13px"></div></div>
@@ -127,19 +127,20 @@ const U=C.u||{cr:0,ff:0,rc:0,rb:3,bn:[]};
 const S={step:0,mode:'photo',t:null,m:null,d:null,a:null,tab:'create'};
 const MODES=[['photo','📸',L('תמונה ← וידאו','Photo → video'),L('מעלים תמונה ובוחרים תבנית','Upload a photo and pick a template')],
  ['custom','🪄',L('תמונה + תיאור ← וידאו','Photo + description → video'),L('מעלים תמונה וכותבים מה יקרה בסרטון','Upload a photo and describe what happens')],
+ ['series','📺',L('סדרה בפרקים · חדש!','Episodic series · NEW!'),L('דמות וסיפור ← פרק 1, פרק 2… כל פרק ממשיך את הקודם (עד '+(C.sx||10)+')','Character & story → Part 1, Part 2… each continues the last (up to '+(C.sx||10)+')')],
  ['flux','🖼',L('טקסט ← תמונה ← וידאו','Text → image → video'),L('כותבים רעיון, AI יוצר תמונה ומנפיש אותה','Write an idea; AI creates an image and animates it')],
  ['t2v','🎬',L('טקסט ← וידאו','Text → video'),L('כותבים רעיון ומקבלים סרטון ישירות','Write an idea and get a video directly')]];
 const GAL=[{k:'birthday',n:L('יום הולדת','Birthday'),m:'Wan 2.1'},{k:'new_year',n:L('שנה טובה','New Year'),m:'Seedance'},{k:'product_ad',n:L('פרסומת למוצר','Product ad'),m:'LTX'},
  {k:'fox',n:L('טקסט ← תמונה ← וידאו','Text → image → video'),m:'FLUX + Wan',mode:'flux'},{k:'cinematic',n:L('מצלמה קולנועית','Cinematic camera'),m:'CogVideoX'},{k:'anniversary',n:L('יום נישואין','Anniversary'),m:'Wan 2.1'}];
-const ICONS={smile_wave:'😊',dance:'💃',cinematic:'🎥',product_ad:'🛍',birthday:'🎂',holiday:'✨',anniversary:'💞',new_year:'🎆'};
+const ICONS={movie_scene:'🎬',living_painting:'🖼',pixar_style:'✨',figurine_alive:'🧸',tilt_shift:'🏘',particles:'✨',flower_burst:'🌸',drone_flyin:'🚁',portal:'🌀',cyberpunk:'🌃',anime:'🌸',time_era:'⏳',old_photo_alive:'📜',smile_wave:'😊',dance:'💃',cinematic:'🎥',product_ad:'🛍',birthday:'🎂',holiday:'✨',anniversary:'💞',new_year:'🎆'};
 const ML=()=>S.mode=='t2v'?C.v:C.m,curM=()=>ML().find(x=>x.k==S.m);
 const tn=t=>EN&&t.ne?t.ne:t.n,td=t=>EN&&t.de?t.de:t.d;
 const meter=n=>'<span class="meter">'+[1,2,3,4,5].map(i=>`<span class="${i<=n?'on':''}"></span>`).join('')+'</span>';
-function base(){if(S.mode=='flux')return C.fp;if(S.mode=='custom')return C.cp||2;if(S.mode=='t2v')return (C.v[0]||{p:3}).p;const t=C.t.find(x=>x.h==S.t);return t?t.p:0}
+function base(){if(S.mode=='flux')return C.fp;if(S.mode=='custom'||S.mode=='series')return C.cp||2;if(S.mode=='t2v')return (C.v[0]||{p:3}).p;const t=C.t.find(x=>x.h==S.t);return t?t.p:0}
 const dsel=()=>{const m=curM();return m?(m.ds.find(x=>x[0]==S.d)||m.ds[0]):null};
 function vprice(){const b=base();if(!b)return 0;const d=dsel();return b+(d?d[1]:0)}
 function price(){return vprice()+(S.a?C.ap:0)}
-function disc(){return U.ff?Math.max(1,Math.floor(vprice()/2))+(S.a?C.ap:0):price()}
+function disc(){return U.ff&&S.mode!='series'?Math.max(1,Math.floor(vprice()/2))+(S.a?C.ap:0):price()}
 const eta=()=>{const d=dsel();return d?d[2]+(S.mode=='flux'?25:0):0};
 const fmt=s=>s>=60?L(`כ-${Math.round(s/6)/10} דק'`,`~${Math.round(s/6)/10} min`):L(`כ-${s} שניות`,`~${s} sec`);
 function hero(){$('hero').innerHTML=U.ff?`<span class="bal">🎁</span><b>${L('הסרטון הראשון ב-50% הנחה!','Your first video is 50% off!')}</b><small>${L('ההנחה תופיע אוטומטית בחשבונית','Applied automatically on the invoice')}</small>`
@@ -158,7 +159,7 @@ function render(){
  const t=S.mode=='photo'?C.t.find(x=>x.h==S.t):null,tname=t?tn(t):MODES.find(x=>x[0]==S.mode)[2];
  if((t||S.mode!='photo')&&m){const pr=disc(),full=price();
   $('sum').innerHTML=`<div class="t"><span>🎨 ${S.mode=='photo'?L('תבנית','Template'):L('סוג','Type')}</span><b>${esc(tname)}</b></div><div class="t"><span>🤖 ${L('מודל','Model')}</span><b>${esc(m.l)}</b></div><div class="t"><span>⏱ ${L('אורך','Length')}</span><b>${dsel()[0]} ${L('שניות','sec')}</b></div><div class="t"><span>🔊 ${L('סאונד','Sound')}</span><b>${S.a?esc((x=>EN&&x.le?x.le:x.l)(C.a.find(x=>x.k==S.a))):L('ללא','None')}</b></div><div class="t"><span>⌛ ${L('זמן משוער','Estimated time')}</span><b>${fmt(eta()+(S.a?60:0))}</b></div>${pr<full?`<div class="t"><span>🎁 ${L('הנחת סרטון ראשון','First-video discount')}</span><b>−${full-pr}⭐</b></div>`:''}<div class="t total"><span>${L('סה"כ','Total')}</span><span>${pr<full?`<s>${full}⭐</s>`:''}${pr}⭐</span></div>`+(U.cr>=pr?`<div class="note" style="text-align:start">💳 ${L(`יש לך ${U.cr}⭐ קרדיט — אפשר לשלם ממנו בבוט`,`You have ${U.cr}⭐ credit — pay with it in the bot`)}</div>`:'');
-  const s1=S.mode=='custom'?L('שולחים תמונה וכותבים מה יקרה (שיפור AI בחינם)','Send a photo and describe what happens (free AI improve)'):S.mode=='photo'?L('שולחים תמונה בצ\'אט עם הבוט','Send a photo in the chat'):L('כותבים תיאור בצ\'אט (שיפור AI בחינם)','Type a description in the chat (free AI improve)');
+  const s1=S.mode=='series'?L('בבוט: שם לסדרה, סיפור ודמויות, ותמונה פותחת או טקסט. המחיר הוא לכל פרק','In the bot: series name, story & characters, and an opening photo or text. Price is per episode'):S.mode=='custom'?L('שולחים תמונה וכותבים מה יקרה (שיפור AI בחינם)','Send a photo and describe what happens (free AI improve)'):S.mode=='photo'?L('שולחים תמונה בצ\'אט עם הבוט','Send a photo in the chat'):L('כותבים תיאור בצ\'אט (שיפור AI בחינם)','Type a description in the chat (free AI improve)');
   $('nextL').innerHTML=[['⭐',L('משלמים בכוכבים או בקרדיט','Pay with Stars or credit')],[S.mode=='photo'||S.mode=='custom'?'📸':'✍️',s1],['⚡',L(`הסרטון נוצר (${fmt(eta())}) עם פס התקדמות חי`,`Video is created (${fmt(eta())}) with a live progress bar`)],['📤',L('משתפים עם חברים בלחיצה','Share with friends in one tap')]].map(x=>`<div class="row"><span>${x[0]}</span><span>${x[1]}</span></div>`).join('')}
  document.querySelectorAll('.steps i').forEach((e,i)=>e.classList.toggle('on',i<=S.step));
  ['s0','s1','s2','s3'].forEach((id,i)=>{const el=$(id),h=i!=S.step;if(!h&&el.classList.contains('hide'))el.classList.add('fade');el.classList.toggle('hide',h)});
@@ -172,10 +173,11 @@ function mainBtn(){const show=S.tab=='create';if(!tg){if(!fb){fb=document.create
  const mb=tg.MainButton;if(!show){mb.hide();tg.BackButton.hide();return}const ok=okStep();mb.setText(btnText());mb.show();ok?mb.enable():mb.disable();mb.color=ok?(tg.themeParams.button_color||'#8b5cf6'):'#777';
  S.step?tg.BackButton.show():tg.BackButton.hide()}
 function next(){if(!okStep()){if(S.step==3){hap('error');(tg?tg.showAlert.bind(tg):alert)(L('יש לאשר את תנאי השימוש','Please accept the terms of service'))}return}
- if(S.step<3){S.step++;render();scrollTo({top:0,behavior:'smooth'});return}
+ if(S.mode=='series')S.a=null;
+ if(S.step<3){S.step++;if(S.step==2&&S.mode=='series')S.step=3;render();scrollTo({top:0,behavior:'smooth'});return}
  go(`app-${S.mode=='photo'?S.t:S.mode}-${S.m}-${dsel()[0]}-${S.a||'none'}-1-${LG}`)}
 function go(p){const u=`https://t.me/${C.b}?start=${p}`;hap('success');if(tg){tg.openTelegramLink(u);setTimeout(()=>tg.close(),300)}else location.href=u}
-function back(){if(S.step>0){S.step--;render()}}
+function back(){if(S.step>0){S.step--;if(S.step==2&&S.mode=='series')S.step=1;render()}}
 document.body.addEventListener('click',e=>{const c=e.target.closest('[data-mo],[data-t],[data-m],[data-d],[data-a],[data-g],[data-tab],[data-b]');if(!c)return;hap();
  if(c.dataset.tab){tab(c.dataset.tab);return}
  if(c.dataset.b){go('buy-'+c.dataset.b);return}
@@ -193,7 +195,7 @@ $('hSound').textContent=L('🔊 סאונד','🔊 Sound');$('audL').textContent=
 $('hNext').textContent=L('⏳ מה קורה עכשיו?','⏳ What happens next?');$('back').textContent=L('→ חזרה','← Back');
 $('termsL').innerHTML=L('קראתי ואני מסכים/ה ל<a href="#" id="tlink">תנאי השימוש</a>: תוכן משפחתי בלבד, רק תמונות שלי או באישור, ללא קטינים.','I have read and agree to the <a href="#" id="tlink">terms of service</a>: family-friendly only, only my own photos or with permission, no minors.');
 $('tlink').onclick=e=>{e.preventDefault();const t=L('1. תוכן רגיל ומשפחתי בלבד.\n2. אסור תוכן מיני או עירום.\n3. רק תמונות שלך או באישור מפורש.\n4. אסור תמונות של קטינים.\n5. תשלום בכוכבים סופי.\n6. הפרה = חסימה.','1. Regular, family-friendly content only.\n2. No sexual content or nudity.\n3. Only your own photos or with explicit permission.\n4. No photos of minors.\n5. Star payments are final.\n6. Violation = ban.');tg?tg.showAlert(t):alert(t)};
-$('hVid').textContent=L('הסרטונים שלי','My videos');$('vidP').textContent=L('כל הסרטונים שיצרת נשמרים בצ\'אט עם הבוט. לחיצה תציג את האחרונים.','All your videos are kept in the bot chat. Tap to list your latest ones.');$('hist').textContent=L('📂 הצג את הסרטונים שלי','📂 Show my videos');$('hist').onclick=()=>go('myvideos');
+$('hVid').textContent=L('הסרטונים שלי','My videos');$('vidP').textContent=L('כל הסרטונים שיצרת נשמרים בצ\'אט עם הבוט. לחיצה תציג את האחרונים.','All your videos are kept in the bot chat. Tap to list your latest ones.');$('hist').textContent=L('📂 הצג את הסרטונים שלי','📂 Show my videos');$('hist').onclick=()=>go('myvideos');$('serB').textContent=L('📺 הסדרות שלי','📺 My series');$('serB').onclick=()=>go('series');
 $('hGal').textContent=L('🎞 דוגמאות','🎞 Examples');$('galN').textContent=L('תצוגה להמחשה · כל התמונות בדויות ונוצרו ב-AI · לחיצה בוחרת את הסגנון','Illustrative previews · all images are fictional, AI-made · tap to use the style');
 $('balL').textContent=L('יתרת קרדיט','Credit balance');$('bal').textContent=U.cr+'⭐';$('ffL').textContent=U.ff?L('🎁 הסרטון הראשון שלך ב-50% הנחה','🎁 Your first video is 50% off'):'';
 $('hInv').textContent=L('🎁 הזמן חברים','🎁 Invite friends');$('invP').innerHTML=L(`על כל חבר/ה שמצטרף/ת דרכך ומשלים/ה הזמנה ראשונה — <b>${U.rb}⭐ קרדיט</b> בשבילך.<br>הצטרפו ושילמו עד כה: <b>${U.rc}</b>`,`For every friend who joins via your link and completes a first paid order — <b>${U.rb}⭐ credit</b> for you.<br>Joined & paid so far: <b>${U.rc}</b>`);
