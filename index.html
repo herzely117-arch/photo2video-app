@@ -44,7 +44,7 @@ h2{font-size:17px;margin:22px 0 10px;display:flex;align-items:center;gap:8px}
 <div class="hero"><div class="brand"><img src="logo.png" alt=""><div><h1>Photo ← Video AI</h1><p>תמונה או טקסט ← סרטון בשניות ✨</p></div></div></div>
 <div class="wrap">
   <div class="steps"><i></i><i></i><i></i><i></i></div>
-  <div class="top"><span></span><span id="hist" class="chip">📂 הסרטונים שלי</span></div>
+  <div class="top"><span id="lgT" class="chip"></span><span id="hist" class="chip">📂 הסרטונים שלי</span></div>
   <section id="s0" class="fade"><h2>✨ מה ניצור?</h2><div class="list" id="modes"></div><div id="tplBox"><h2>🎨 בחר/י תבנית</h2><div class="grid" id="tpls"></div></div><div id="txtBox" class="hide sum" style="margin-top:12px"></div></section>
   <section id="s1" class="hide"><h2>🤖 בחר/י מודל AI</h2><div class="list" id="models"></div>
     <div id="durBox" class="hide"><h2>⏱ אורך הסרטון</h2><div class="row" id="durs"></div></div></section>
@@ -62,6 +62,12 @@ h2{font-size:17px;margin:22px 0 10px;display:flex;align-items:center;gap:8px}
 const tg=window.Telegram&&Telegram.WebApp;tg&&tg.ready();tg&&tg.expand();
 let C=null;try{const h=new URLSearchParams(location.hash.slice(1)).get('c');let b=h.replace(/-/g,'+').replace(/_/g,'/');while(b.length%4)b+='=';C=JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(b),c=>c.charCodeAt(0))))}catch(e){}
 const $=id=>document.getElementById(id);
+const EN={"✍️ אחרי ההזמנה תכתוב/י בצ'אט תיאור קצר (אפשר בעברית). אפשר לשפר אותו עם AI בחינם. תוכן משפחתי בלבד, בלי אנשים אמיתיים או מפורסמים.": "✍️ After ordering, type a short description in the chat. You can improve it with AI for free. Family-friendly only, no real or famous people.", "שולחים תמונה בצ'אט וכותבים מה יקרה בסרטון (אפשר לשפר עם AI בחינם)": "Send a photo in the chat and type what should happen (free AI improve)", "כותבים תיאור בצ'אט (אפשר לשפר עם AI בחינם)": "Type a description in the chat (free AI improve)", "שולחים תמונה בצ'אט עם הבוט": "Send a photo in the chat with the bot", "הסרטון מגיע לצ'אט ונשמר ב\"הסרטונים שלי\"": "The video arrives in the chat and is saved in \"My videos\"", "קראתי ואני מסכים/ה ל": "I have read and agree to the ", "תנאי השימוש": "terms of service", ": תוכן משפחתי בלבד, רק תמונות שלי או באישור, ללא קטינים.": ": family-friendly only, only my own photos or with permission, no minors.", "1. תוכן רגיל ומשפחתי בלבד.\n2. אסור תוכן מיני או עירום.\n3. רק תמונות שלך או באישור מפורש.\n4. אסור תמונות של קטינים.\n5. תשלום בכוכבים סופי.\n6. הפרה = חסימה.": "1. Regular, family-friendly content only.\n2. No sexual content or nudity.\n3. Only your own photos or with explicit permission.\n4. No photos of minors.\n5. Star payments are final.\n6. Violation = ban.", "יש לאשר את תנאי השימוש": "Please accept the terms of service", "פתח/י את האפליקציה מתוך הבוט 🙂": "Open the app from the bot 🙂", "שלח/י לבוט /app": "Send /app to the bot", "תמונה או טקסט ← סרטון בשניות ✨": "Photo or text → video in seconds ✨", "כותבים רעיון, AI יוצר תמונה ומנפיש אותה": "Write an idea; AI creates an image and animates it", "מעלים תמונה וכותבים מה יקרה בסרטון": "Upload a photo and describe what should happen", "כותבים רעיון ומקבלים סרטון ישירות": "Write an idea and get a video directly", "מעלים תמונה ובוחרים תבנית": "Upload a photo and pick a template", "תמונה + תיאור ← וידאו": "Photo + description → video", "טקסט ← תמונה ← וידאו": "Text → image → video", "טקסט ← וידאו": "Text → video", "תמונה ← וידאו": "Photo → video", "⭐ · מוזיקה/אווירה שנוצרת ב-AI": "⭐ · AI-generated music/ambience", "⏳ מה קורה עכשיו?": "⏳ What happens next?", "משלמים בכוכבים בחשבונית": "Pay with Stars on the invoice", "⬇️ בחר/י תבנית למטה": "⬇️ Pick a template below", "🤖 בחר/י מודל AI": "🤖 Choose an AI model", "📂 הסרטונים שלי": "📂 My videos", "🎨 בחר/י תבנית": "🎨 Choose a template", "🔊 סאונד מובנה": "🔊 Built-in sound", "🧾 סיכום הזמנה": "🧾 Order summary", "הוסף סאונד AI": "Add AI sound", "⏱ אורך הסרטון": "⏱ Video length", "+ סאונד (כדקה)": "+ sound (~1 min)", "עם פס התקדמות חי": "with a live progress bar", "הסרטון נוצר (": "Video is created (", "✨ מה ניצור?": "✨ What shall we create?", "⌛ זמן משוער": "⌛ Estimated time", "שלח תמונה ותיאור": "send photo + description", "שלח תמונה": "send photo", "כתוב תיאור": "write description", "הזמן ב-": "Order for ", "לסיכום ←": "Summary →", "המשך ←": "Continue →", "→ חזרה": "← Back", "🤖 מודל": "🤖 Model", "⏱ אורך": "⏱ Length", "🔊 סאונד": "🔊 Sound", "מהירות": "speed", "איכות": "quality", "תבנית": "Template", "סוג": "Type", "ללא": "None", "סה\"כ": "Total", "שניות": "sec", "דק'": "min", "כ-": "~", "⭐ ו": "⭐ & "};
+const EK=Object.keys(EN).sort((a,b)=>b.length-a.length),ERX=new RegExp(EK.map(k=>k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|'),'g');
+let LG=localStorage.getItem('p2v_lang')||(C&&C.lg)||'he';
+const T=s=>LG=='en'&&typeof s=='string'?s.replace(ERX,m=>EN[m]).replace(/←/g,'→'):s;
+function i18nDom(){document.documentElement.lang=LG;document.documentElement.dir=LG=='en'?'ltr':'rtl';$('lgT').textContent=LG=='en'?'🇮🇱 עברית':'🇬🇧 English';
+ if(LG!='en')return;const w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);let n;while(n=w.nextNode()){if(/[\u0590-\u05FF←→]/.test(n.nodeValue)&&n.parentNode.id!='lgT'&&!n.parentNode.closest('[data-t]'))n.nodeValue=T(n.nodeValue)}}
 if(!C){document.querySelector('.wrap').innerHTML='<h2>פתח/י את האפליקציה מתוך הבוט 🙂</h2><p style="color:var(--hint)">שלח/י לבוט /app</p>';throw 0}
 const S={step:0,mode:'photo',t:null,m:null,d:null,a:null};
 const MODES=[['photo','📸','תמונה ← וידאו','מעלים תמונה ובוחרים תבנית'],['flux','🖼','טקסט ← תמונה ← וידאו','כותבים רעיון, AI יוצר תמונה ומנפיש אותה'],['custom','📸','תמונה + תיאור ← וידאו','מעלים תמונה וכותבים מה יקרה בסרטון'],['t2v','🎬','טקסט ← וידאו','כותבים רעיון ומקבלים סרטון ישירות']];
@@ -91,15 +97,15 @@ function render(){
  document.querySelectorAll('.steps i').forEach((e,i)=>e.classList.toggle('on',i<=S.step));
  ['s0','s1','s2','s3'].forEach((id,i)=>{const el=$(id);const h=i!=S.step;if(!h&&el.classList.contains('hide'))el.classList.add('fade');el.classList.toggle('hide',h)});
  $('back').classList.toggle('hide',S.step==0);
- mainBtn();
+ i18nDom();mainBtn();
 }
 function mainBtn(){if(!tg)return;const mb=tg.MainButton;let txt=null,ok=false;
  if(S.step==0){ok=S.mode!='photo'||!!S.t;txt=ok?'המשך ←':'⬇️ בחר/י תבנית למטה'}else if(S.step==1){txt='המשך ←';ok=!!S.m}else if(S.step==2){txt='לסיכום ←';ok=true}else{txt=`הזמן ב-${price()}⭐ ו${S.mode=='photo'?'שלח תמונה':S.mode=='custom'?'שלח תמונה ותיאור':'כתוב תיאור'}`;ok=$('terms').checked}
- mb.setText(txt);mb.show();ok?mb.enable():mb.disable();mb.color=ok?(tg.themeParams.button_color||'#8b5cf6'):'#777';
+ mb.setText(T(txt));mb.show();ok?mb.enable():mb.disable();mb.color=ok?(tg.themeParams.button_color||'#8b5cf6'):'#777';
  tg.BackButton&&(S.step?tg.BackButton.show():tg.BackButton.hide())}
 function next(){if(S.step==0&&S.mode=='photo'&&!S.t||S.step==1&&!S.m)return;if(S.step<3){S.step++;render();scrollTo({top:0,behavior:'smooth'});return}
- if(!$('terms').checked){tg&&tg.showAlert('יש לאשר את תנאי השימוש');return}
- const p=`app-${S.mode=='photo'?S.t:S.mode}-${S.m}-${dsel()[0]}-${S.a||'none'}-1`;go(p)}
+ if(!$('terms').checked){tg&&tg.showAlert(T('יש לאשר את תנאי השימוש'));return}
+ const p=`app-${S.mode=='photo'?S.t:S.mode}-${S.m}-${dsel()[0]}-${S.a||'none'}-1-${LG}`;go(p)}
 function go(p){const u=`https://t.me/${C.b}?start=${p}`;if(tg){tg.HapticFeedback&&tg.HapticFeedback.notificationOccurred('success');tg.openTelegramLink(u);setTimeout(()=>tg.close(),300)}else location.href=u}
 function back(){if(S.step>0){S.step--;render()}}
 document.body.addEventListener('click',e=>{const c=e.target.closest('[data-mo],[data-t],[data-m],[data-d],[data-a]');if(!c)return;hap();
@@ -109,7 +115,8 @@ document.body.addEventListener('click',e=>{const c=e.target.closest('[data-mo],[
  if(c.dataset.d){S.d=+c.dataset.d}if(c.dataset.a){S.a=c.dataset.a}render()});
 $('audT').onclick=()=>{hap();S.a=S.a?null:C.a[0].k;render()};
 $('terms').onchange=mainBtn;$('back').onclick=back;
-$('tlink').onclick=e=>{e.preventDefault();const t='1. תוכן רגיל ומשפחתי בלבד.\n2. אסור תוכן מיני או עירום.\n3. רק תמונות שלך או באישור מפורש.\n4. אסור תמונות של קטינים.\n5. תשלום בכוכבים סופי.\n6. הפרה = חסימה.';tg?tg.showAlert(t):alert(t)};
+$('tlink').onclick=e=>{e.preventDefault();const t='1. תוכן רגיל ומשפחתי בלבד.\n2. אסור תוכן מיני או עירום.\n3. רק תמונות שלך או באישור מפורש.\n4. אסור תמונות של קטינים.\n5. תשלום בכוכבים סופי.\n6. הפרה = חסימה.';tg?tg.showAlert(T(t)):alert(T(t))};
+$('lgT').onclick=()=>{hap();LG=LG=='en'?'he':'en';localStorage.setItem('p2v_lang',LG);location.reload()};
 $('hist').onclick=()=>go('myvideos');
 if(tg){tg.MainButton.onClick(next);tg.BackButton.onClick(back);tg.setHeaderColor&&tg.setHeaderColor('bg_color')}
 else{const b=document.createElement('button');b.className='btn';b.textContent='המשך';b.onclick=next;document.querySelector('.wrap').appendChild(b)}
