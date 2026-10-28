@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Photo → Video AI</title>
+<link rel="icon" href="logo.png">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root{--bg:var(--tg-theme-bg-color,#0f0c29);--bg2:var(--tg-theme-secondary-bg-color,#1a1640);--tx:var(--tg-theme-text-color,#fff);--hint:var(--tg-theme-hint-color,#a9a3d6);--btn:var(--tg-theme-button-color,#8b5cf6);--btx:var(--tg-theme-button-text-color,#fff);--grad:linear-gradient(135deg,#7c3aed,#db2777 60%,#f59e0b)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font-family:-apple-system,"Segoe UI",Heebo,Arial,sans-serif;background:var(--bg);color:var(--tx);padding-bottom:100px}
+.hero{position:relative;height:210px;background:url(hero.jpg) center/cover;border-radius:0 0 28px 28px;overflow:hidden}
+.hero:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 30%,var(--bg) 100%)}
+.brand{position:absolute;z-index:1;bottom:14px;right:16px;display:flex;gap:12px;align-items:center}
+.brand img{width:58px;height:58px;border-radius:16px;box-shadow:0 6px 24px #db277766}
+.brand h1{margin:0;font-size:22px}.brand p{margin:2px 0 0;color:var(--hint);font-size:13px}
+.wrap{padding:0 16px}
+h2{font-size:17px;margin:22px 0 10px;display:flex;align-items:center;gap:8px}
+.steps{display:flex;gap:6px;margin:16px 0 4px}.steps i{flex:1;height:4px;border-radius:4px;background:var(--bg2)}.steps i.on{background:var(--grad)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.card{background:var(--bg2);border-radius:18px;padding:14px;border:2px solid transparent;transition:.2s;cursor:pointer;position:relative;overflow:hidden}
+.card:active{transform:scale(.97)}.card.sel{border-color:var(--btn);box-shadow:0 0 0 4px #8b5cf633}
+.card .ic{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:22px;margin-bottom:8px}
+.card b{display:block;font-size:15px}.card small{color:var(--hint);font-size:12px;line-height:1.35;display:block;margin-top:4px}
+.price{position:absolute;top:10px;left:10px;font-size:12px;background:#0003;padding:3px 8px;border-radius:20px}
+.list .card{display:flex;gap:12px;align-items:center;margin-bottom:10px}
+.meter{display:flex;gap:3px;margin-top:5px}.meter span{width:14px;height:5px;border-radius:3px;background:#8884}.meter span.on{background:var(--grad)}
+.row{display:flex;gap:10px}.row .card{flex:1;text-align:center}
+.chips{display:flex;flex-wrap:wrap;gap:8px}.chip{padding:9px 14px;border-radius:20px;background:var(--bg2);border:2px solid transparent;font-size:14px;cursor:pointer}.chip.sel{border-color:var(--btn)}
+.toggle{display:flex;justify-content:space-between;align-items:center;background:var(--bg2);border-radius:18px;padding:14px}
+.sw{width:50px;height:30px;border-radius:15px;background:#8885;position:relative;transition:.2s}.sw:after{content:"";position:absolute;top:3px;right:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:.2s}.sw.on{background:var(--btn)}.sw.on:after{right:23px}
+.sum{background:var(--bg2);border-radius:18px;padding:14px;line-height:1.9}.sum .t{display:flex;justify-content:space-between}.total{font-size:20px;font-weight:700;border-top:1px solid #8883;margin-top:6px;padding-top:6px}
+.terms{display:flex;gap:10px;align-items:flex-start;margin-top:14px;font-size:13px;color:var(--hint)}.terms input{width:20px;height:20px;accent-color:var(--btn)}
+.tl{margin-top:8px}.tl div{display:flex;gap:12px;align-items:center;padding:10px 0}.tl em{width:34px;height:34px;border-radius:50%;background:var(--bg2);display:grid;place-items:center;font-style:normal}
+.btn{display:block;width:100%;padding:15px;border:0;border-radius:16px;background:var(--grad);color:#fff;font-size:16px;font-weight:700;margin-top:12px;cursor:pointer}
+.btn.ghost{background:var(--bg2);color:var(--tx)}
+.top{display:flex;justify-content:space-between;margin-top:16px}
+.hide{display:none}
+.fade{animation:f .35s ease}@keyframes f{from{opacity:0;transform:translateY(10px)}to{opacity:1}}
+</style>
+</head>
+<body>
+<div class="hero"><div class="brand"><img src="logo.png" alt=""><div><h1>Photo → Video AI</h1><p>הופכים תמונה לסרטון בשניות ✨</p></div></div></div>
+<div class="wrap">
+  <div class="steps"><i></i><i></i><i></i><i></i></div>
+  <div class="top"><span></span><span id="hist" class="chip">📂 הסרטונים שלי</span></div>
+  <section id="s0" class="fade"><h2>🎨 בחר/י תבנית</h2><div class="grid" id="tpls"></div></section>
+  <section id="s1" class="hide"><h2>🤖 בחר/י מודל AI</h2><div class="list" id="models"></div>
+    <div id="durBox" class="hide"><h2>⏱ אורך הסרטון</h2><div class="row" id="durs"></div></div></section>
+  <section id="s2" class="hide"><h2>🔊 סאונד מובנה</h2>
+    <div class="toggle" id="audT"><div><b>הוסף סאונד AI</b><br><small style="color:var(--hint)" id="audP"></small></div><div class="sw" id="sw"></div></div>
+    <div id="audBox" class="hide" style="margin-top:12px"><div class="chips" id="auds"></div></div></section>
+  <section id="s3" class="hide"><h2>🧾 סיכום הזמנה</h2><div class="sum" id="sum"></div>
+    <label class="terms"><input type="checkbox" id="terms"><span>קראתי ואני מסכים/ה ל<a href="#" id="tlink" style="color:var(--btn)">תנאי השימוש</a>: תוכן משפחתי בלבד, רק תמונות שלי או באישור, ללא קטינים.</span></label>
+    <h2>⏳ מה קורה עכשיו?</h2>
+    <div class="tl"><div><em>📸</em><span>שולחים תמונה בצ'אט עם הבוט</span></div><div><em>⭐</em><span>משלמים בכוכבים בחשבונית</span></div><div><em>🎬</em><span id="etaL"></span></div><div><em>📥</em><span>הסרטון מגיע לצ'אט ונשמר ב"הסרטונים שלי"</span></div></div>
+  </section>
+  <button class="btn ghost hide" id="back">→ חזרה</button>
+</div>
+<script>
+const tg=window.Telegram&&Telegram.WebApp;tg&&tg.ready();tg&&tg.expand();
+let C=null;try{const h=new URLSearchParams(location.hash.slice(1)).get('c');let b=h.replace(/-/g,'+').replace(/_/g,'/');while(b.length%4)b+='=';C=JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(b),c=>c.charCodeAt(0))))}catch(e){}
+const $=id=>document.getElementById(id);
+if(!C){document.querySelector('.wrap').innerHTML='<h2>פתח/י את האפליקציה מתוך הבוט 🙂</h2><p style="color:var(--hint)">שלח/י לבוט /app</p>';throw 0}
+const S={step:0,t:null,m:null,d:5,a:null};
+const ICONS=['😊','💃','🎥','🛍','🖼','✨','🌟','🎞','🌈','🚀'],COL=['#7c3aed','#db2777','#0ea5e9','#f59e0b','#10b981','#ef4444'];
+const hap=t=>tg&&tg.HapticFeedback&&tg.HapticFeedback.selectionChanged();
+function meter(n){return '<div class="meter">'+[1,2,3,4,5].map(i=>`<span class="${i<=n?'on':''}"></span>`).join('')+'</div>'}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function price(){const t=C.t.find(x=>x.h==S.t);if(!t)return 0;let p=t.p;const m=C.m.find(x=>x.k==S.m);if(m&&m.dur&&S.d==10)p+=Math.round(p*C.x10);if(S.a)p+=C.ap;return p}
+function eta(){const m=C.m.find(x=>x.k==S.m);if(!m)return 0;return (m.dur&&S.d==10&&m.e10)?m.e10:m.e}
+function fmt(s){return s>=60?`כ-${Math.round(s/60*10)/10} דק'`:`כ-${s} שניות`}
+function render(){
+ $('tpls').innerHTML=C.t.map((t,i)=>`<div class="card ${S.t==t.h?'sel':''}" data-t="${t.h}"><span class="price">${t.p}⭐</span><div class="ic" style="background:${COL[i%COL.length]}33">${ICONS[i%ICONS.length]}</div><b>${esc(t.n)}</b><small>${esc(t.d)}</small></div>`).join('');
+ $('models').innerHTML=C.m.map(m=>`<div class="card ${S.m==m.k?'sel':''}" data-m="${m.k}"><div class="ic" style="background:#8b5cf633">🤖</div><div style="flex:1"><b>${esc(m.l)}</b><small>מהירות ${meter(m.speed)} איכות ${meter(m.quality)}</small></div><small>⏱ ${fmt(m.e)}</small></div>`).join('');
+ const tp=(C.t.find(x=>x.h==S.t)||{p:1}).p;
+ $('durs').innerHTML=[5,10].map(d=>`<div class="card ${S.d==d?'sel':''}" data-d="${d}"><b>${d} שניות</b><small>${d==10?tp+Math.round(tp*C.x10):tp}⭐</small></div>`).join('');
+ const m=C.m.find(x=>x.k==S.m);$('durBox').classList.toggle('hide',!(m&&m.dur));
+ $('audP').textContent=`+${C.ap}⭐ · מוזיקה/אווירה שנוצרת ב-AI`;$('sw').classList.toggle('on',!!S.a);$('audBox').classList.toggle('hide',!S.a);
+ $('auds').innerHTML=C.a.map(a=>`<span class="chip ${S.a==a.k?'sel':''}" data-a="${a.k}">${esc(a.l)}</span>`).join('');
+ const t=C.t.find(x=>x.h==S.t);
+ if(t&&m){$('sum').innerHTML=`<div class="t"><span>🎨 תבנית</span><b>${esc(t.n)}</b></div><div class="t"><span>🤖 מודל</span><b>${esc(m.l)}</b></div>${m.dur?`<div class="t"><span>⏱ אורך</span><b>${S.d} שניות</b></div>`:''}<div class="t"><span>🔊 סאונד</span><b>${S.a?esc(C.a.find(x=>x.k==S.a).l):'ללא'}</b></div><div class="t"><span>⌛ זמן משוער</span><b>${fmt(eta()+(S.a?60:0))}</b></div><div class="t total"><span>סה"כ</span><span>${price()}⭐</span></div>`;$('etaL').textContent=`הסרטון נוצר (${fmt(eta())}) עם פס התקדמות חי`+(S.a?' + סאונד (כדקה)':'')}
+ document.querySelectorAll('.steps i').forEach((e,i)=>e.classList.toggle('on',i<=S.step));
+ ['s0','s1','s2','s3'].forEach((id,i)=>{const el=$(id);const h=i!=S.step;if(!h&&el.classList.contains('hide'))el.classList.add('fade');el.classList.toggle('hide',h)});
+ $('back').classList.toggle('hide',S.step==0);
+ mainBtn();
+}
+function mainBtn(){if(!tg)return;const mb=tg.MainButton;let txt=null,ok=false;
+ if(S.step==0){txt='המשך ←';ok=!!S.t}else if(S.step==1){txt='המשך ←';ok=!!S.m}else if(S.step==2){txt='לסיכום ←';ok=true}else{txt=`הזמן ב-${price()}⭐ ושלח תמונה`;ok=$('terms').checked}
+ mb.setText(txt);mb.show();ok?mb.enable():mb.disable();mb.color=ok?(tg.themeParams.button_color||'#8b5cf6'):'#777';
+ tg.BackButton&&(S.step?tg.BackButton.show():tg.BackButton.hide())}
+function next(){if(S.step==0&&!S.t||S.step==1&&!S.m)return;if(S.step<3){S.step++;render();scrollTo({top:0,behavior:'smooth'});return}
+ if(!$('terms').checked){tg&&tg.showAlert('יש לאשר את תנאי השימוש');return}
+ const p=`app-${S.t}-${S.m}-${S.d}-${S.a||'none'}-1`;go(p)}
+function go(p){const u=`https://t.me/${C.b}?start=${p}`;if(tg){tg.HapticFeedback&&tg.HapticFeedback.notificationOccurred('success');tg.openTelegramLink(u);setTimeout(()=>tg.close(),300)}else location.href=u}
+function back(){if(S.step>0){S.step--;render()}}
+document.body.addEventListener('click',e=>{const c=e.target.closest('[data-t],[data-m],[data-d],[data-a]');if(!c)return;hap();
+ if(c.dataset.t){S.t=c.dataset.t;render();setTimeout(next,250);return}
+ if(c.dataset.m){S.m=c.dataset.m;const m=C.m.find(x=>x.k==S.m);if(!m.dur)S.d=5;render();return}
+ if(c.dataset.d){S.d=+c.dataset.d}if(c.dataset.a){S.a=c.dataset.a}render()});
+$('audT').onclick=()=>{hap();S.a=S.a?null:C.a[0].k;render()};
+$('terms').onchange=mainBtn;$('back').onclick=back;
+$('tlink').onclick=e=>{e.preventDefault();const t='1. תוכן רגיל ומשפחתי בלבד.\n2. אסור תוכן מיני או עירום.\n3. רק תמונות שלך או באישור מפורש.\n4. אסור תמונות של קטינים.\n5. תשלום בכוכבים סופי.\n6. הפרה = חסימה.';tg?tg.showAlert(t):alert(t)};
+$('hist').onclick=()=>go('myvideos');
+if(tg){tg.MainButton.onClick(next);tg.BackButton.onClick(back);tg.setHeaderColor&&tg.setHeaderColor('bg_color')}
+else{const b=document.createElement('button');b.className='btn';b.textContent='המשך';b.onclick=next;document.querySelector('.wrap').appendChild(b)}
+render();
+</script>
+</body>
+</html>
