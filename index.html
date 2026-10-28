@@ -19,6 +19,12 @@ body:before{content:"";position:fixed;inset:-20%;z-index:-1;background:radial-gr
 .top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
 .logo{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--acc),var(--acc2));display:grid;place-items:center;font-size:20px;box-shadow:0 6px 20px #8b5cf655}
 .top h1{font-size:19px;margin:0;font-weight:800;letter-spacing:-.3px}.top p{margin:0;color:var(--hint);font-size:12.5px}
+.gnc{position:relative;overflow:hidden;border-radius:20px;padding:16px;border:1px solid var(--line);cursor:pointer;min-height:118px;display:flex;flex-direction:column;justify-content:flex-end;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.gnc.r{background:linear-gradient(135deg,#ff5f9e,#b44cff 60%,#6a5cff)}.gnc.b{background:linear-gradient(135deg,#ff7a18,#d7263d 55%,#3a0d2e)}
+.gnc b{color:#fff;font-size:17px}.gnc small{color:rgba(255,255,255,.88);font-size:12px;line-height:1.35}.gnc .ge{font-size:34px;position:absolute;top:10px;inset-inline-end:12px}
+.gnc .price{position:absolute;top:12px;inset-inline-start:12px;background:rgba(0,0,0,.28);color:#fff}.gnc .nw{font-size:10px;font-weight:800;background:#fff;color:#b44cff;border-radius:6px;padding:1px 6px;margin-inline-start:6px}
+.gnp{margin-top:12px;padding:16px}.gnp h3{margin:12px 0 6px;font-size:13px;color:var(--hint)}.gnp .chips{display:flex;flex-wrap:wrap;gap:6px}
+.gnp textarea{width:100%;min-height:60px;margin-top:4px}
 .chip{display:inline-flex;align-items:center;gap:4px;padding:6px 11px;border-radius:999px;background:var(--card);border:1px solid var(--line);font-size:12.5px;cursor:pointer;backdrop-filter:blur(12px)}
 .chip.sel{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;border-color:transparent}
 .sp{flex:1}
@@ -103,7 +109,7 @@ a{color:var(--acc)}
  </section>
  <section id="pVideos" class="hide"><div class="glass" style="padding:22px;text-align:center"><div style="font-size:50px">📂</div><h2 id="hVid" style="margin:8px 0"></h2><p id="vidP" style="color:var(--hint)"></p><button class="btn" id="hist"></button><button class="btn ghost" id="serB" style="margin-top:10px"></button></div></section>
  <section id="pGallery" class="hide"><h2 id="hGal"></h2><div class="gal" id="gal"></div><p class="note" id="galN"></p></section>
- <section id="pStudio" class="hide"><h2 id="hStu"></h2><div class="grid" id="stu"></div><p class="note" id="stuN"></p><h2 id="hEng"></h2><div class="list" id="eng"></div></section>
+ <section id="pStudio" class="hide"><div id="gnBox"></div><h2 id="hStu"></h2><div class="grid" id="stu"></div><p class="note" id="stuN"></p><h2 id="hEng"></h2><div class="list" id="eng"></div></section>
  <section id="pDeals" class="hide"><div id="saleBox"></div><h2 id="hDeals"></h2><div class="list" id="dealL"></div><h2 id="hDB"></h2><div class="list" id="dealB"></div>
  <div id="admBox" class="hide"><h2>🛠 Admin</h2><div class="glass" style="padding:14px" id="admS"></div><div class="grid" style="margin-top:10px" id="admB"></div><p class="note" id="admN"></p></div></section>
 <section id="pInvite" class="hide">
@@ -194,8 +200,9 @@ if(S.mode=='series'){const v=id=>$(id).value.trim();handoff({a:'sr',m:S.m,d:S.d|
  go(`app-${S.mode=='photo'?S.t:S.mode}-${S.m}-${dsel()[0]}-${S.a||'none'}-1-${LG}`)}
 // app → bot handoff: sendData when launched from a keyboard button, else a ≤64-char base64url deep link (drop idea, story, title… until it fits), else the plain flow
 const b64u=s=>btoa(String.fromCharCode(...new TextEncoder().encode(s))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
-function handoff(d,fb){hap('success');const full=JSON.stringify(d);
+function handoff(d,fb,direct){hap('success');const full=JSON.stringify(d);
  if(tg&&!(tg.initDataUnsafe||{}).query_id){try{tg.sendData(full);return}catch(e){}}
+ if(direct){if(d.x)toast(L('נשלים את הפרטים בבוט','We’ll finish the details in the bot'));go(fb);return}
  const o={...d};for(const k of ['','i','s','t','lg','st']){if(k)delete o[k];for(const z of Object.keys(o))if(o[z]===''||o[z]===0&&z=='g')delete o[z];const p='j-'+b64u(JSON.stringify(o));if(p.length<=64){if(k&&['i','s','t'].includes(k))toast(L('נשלים את הפרטים בבוט','We’ll finish the details in the bot'));go(p);return}}
  go(fb)}
 function go(p){const u=`https://t.me/${C.b}?start=${p}`;hap('success');if(tg){tg.openTelegramLink(u);setTimeout(()=>tg.close(),300)}else location.href=u}
@@ -210,6 +217,27 @@ document.body.addEventListener('click',e=>{const c=e.target.closest('[data-mo],[
  if(c.dataset.t){S.t=c.dataset.t;render();setTimeout(next,250);return}
  if(c.dataset.m){S.m=c.dataset.m;S.d=curM().ds[0][0];render();return}
  if(c.dataset.d)S.d=+c.dataset.d;if(c.dataset.a)S.a=c.dataset.a;render()});
+// 💕 Romantic / 🔥 Bold genre screens (fictional adult characters, no photos) → handoff {a:'st',k,o,b,x}
+const GN={"romantic":{"s":[["dinner","🕯 ארוחה לאור נרות","🕯 Candlelight dinner"],["rain","☔ ריקוד בגשם","☔ Dancing in the rain"],["sunset","🌅 שקיעה בחוף","🌅 Beach sunset"],["proposal","💍 הצעת נישואין","💍 Proposal"],["paris","🗼 טיול בפריז","🗼 Walk in Paris"],["slow","💃 ריקוד סלואו","💃 Slow dance"],["telenovela","📺 טלנובלה רומנטית (סדרה)","📺 Romantic telenovela (series)"]],"b":[["hair","שיער","Hair",[["חום","Brown"],["שחור","Black"],["בלונדיני","Blond"],["ג'ינג'י","Red"],["אפור כסוף","Silver"]]],["eyes","עיניים","Eyes",[["חומות","Brown"],["כחולות","Blue"],["ירוקות","Green"],["דבש","Hazel"]]],["style","סגנון לבוש","Clothing style",[["צנוע","Modest"],["אלגנטי","Elegant"],["קז'ואל","Casual"]]],["era","תקופה","Era",[["היום","Today"],["שנות ה-50","1950s"],["שנות ה-20","1920s"],["ויקטוריאני","Victorian"]]],["place","מקום","Location",[["עיר","City"],["כפר","Village"],["ים","Seaside"],["הרים","Mountains"]]],["mood","אופי","Personality",[["ביישנים","Shy"],["מצחיקים","Funny"],["חולמניים","Dreamy"],["נמרצים","Spirited"]]]]},"bold":{"s":[["horror","👻 אימה","👻 Horror"],["zombie","🧟 זומבים","🧟 Zombies"],["action","💥 פיצוצים ואקשן","💥 Action explosions"],["dark","😈 הומור שחור","😈 Dark humor"],["villain","🦹 נבלים","🦹 Villains"],["drama","🎭 דרמה קולנועית","🎭 Cinematic drama"]],"b":[]}};const GS={k:null,o:null,b:{}};
+function gnRender(){const x=k=>(C.x||[]).find(e=>e.k==k)||{p:'?'},box=$('gnBox');
+ let h=`<h2>${L('קטגוריות חדשות','New categories')}</h2><div class="grid">`+[['romantic','r','💕',L('רומנטי','Romantic'),L('רומנטיקה ברמת סרט משפחתי · בונה דמויות · טלנובלה','Family-film romance · character builder · telenovela')],
+  ['bold','b','🔥',L('נועז','Bold'),L('אימה · זומבים · פיצוצים · הומור שחור · נבלים · דרמה','Horror · zombies · explosions · dark humor · villains · drama')]]
+  .map(g=>`<div class="gnc ${g[1]}" data-gn="${g[0]}"><span class="ge">${g[2]}</span><span class="price">${x(g[0]).p}⭐</span><b>${g[3]}<span class="nw">${L('חדש','NEW')}</span></b><small>${g[4]}</small></div>`).join('')+'</div>';
+ if(GS.k){const g=GN[GS.k],R=GS.k=='romantic';
+  h+=`<div class="glass gnp"><b>${R?'💕 '+L('רומנטי','Romantic'):'🔥 '+L('נועז','Bold')}</b><p class="note" style="margin:4px 0 0">${R?L('דמויות AI בדיוניות בוגרות בלבד · לבוש מלא · אחיזת ידיים 💞 · בלי העלאת תמונות','AI fictional adult characters only · fully clothed · holding hands 💞 · no photo uploads'):L('PG-13 · דמויות בדיוניות בוגרות · בלי גור ובלי תוכן מיני','PG-13 · fictional adult characters · no gore, nothing sexual')}</p>
+  <h3>${L('סצנה','Scene')}</h3><div class="chips">${g.s.map(s=>`<span class="chip ${GS.o==s[0]?'sel':''}" data-gs="${s[0]}">${esc(EN?s[2]:s[1])}</span>`).join('')}</div>`;
+  g.b.forEach((f,i)=>{h+=`<h3>👫 ${esc(EN?f[2]:f[1])}</h3><div class="chips">${f[3].map((v,j)=>`<span class="chip ${GS.b[i]===j?'sel':''}" data-gb="${i}:${j}">${esc(EN?v[1]:v[0])}</span>`).join('')}<span class="chip ${GS.b[i]==null?'sel':''}" data-gb="${i}:-">🎲</span></div>`});
+  if(GS.o!='telenovela')h+=`<h3>${L('פרט נוסף (לא חובה)','Extra detail (optional)')}</h3><textarea id="gnX" maxlength="300" placeholder="${R?L('למשל: הם צוחקים מתחת למטריה','e.g. they laugh under an umbrella'):L('למשל: הזומבים רוקדים בקניון','e.g. the zombies dance in the mall')}"></textarea>`;
+  h+=`<label class="terms"><input type="checkbox" id="gnT"><span>${L('מאשר/ת: דמויות בדיוניות בוגרות בלבד, תוכן נקי, בלי אנשים אמיתיים.','I confirm: fictional adult characters only, clean content, no real people.')}</span></label><button class="btn" id="gnGo" style="margin-top:10px">${GS.o=='telenovela'?L('📺 התחל טלנובלה בבוט','📺 Start telenovela in the bot'):L('✨ צור בבוט','✨ Create in the bot')}</button></div>`}
+ const keep=$('gnX')?$('gnX').value:'';box.innerHTML=h;if($('gnX'))$('gnX').value=keep;
+ if($('gnGo'))$('gnGo').onclick=()=>{if(!GS.o){hap('error');toast(L('בחר/י סצנה','Pick a scene'));return}if(!$('gnT').checked){hap('error');toast(L('יש לאשר','Please confirm'));return}
+  const b=GN[GS.k].b.map((_,i)=>GS.b[i]==null?'-':GS.b[i]).join(''),d={a:'st',k:GS.k,o:GS.o,tc:1,lg:LG};if(b)d.b=b;const v=$('gnX')&&$('gnX').value.trim();if(v)d.x=v;
+  handoff(d,`gn-${GS.k}-${GS.o}`+(b?'-'+b.replace(/-/g,'x'):''),1)}}
+document.body.addEventListener('click',e=>{const c=e.target.closest('[data-gn],[data-gs],[data-gb]');if(!c)return;hap();
+ if(c.dataset.gn){GS.k=GS.k==c.dataset.gn?null:c.dataset.gn;GS.o=null;GS.b={}}
+ if(c.dataset.gs)GS.o=c.dataset.gs;
+ if(c.dataset.gb){const[i,j]=c.dataset.gb.split(':');if(j=='-')delete GS.b[i];else GS.b[i]=+j}
+ gnRender();if(c.dataset.gn&&GS.k)setTimeout(()=>$('gnBox').querySelector('.gnp').scrollIntoView({behavior:'smooth',block:'start'}),100)});
 $('dlgT').onclick=()=>{hap();S.g=S.g?0:1;render()};
 $('audT').onclick=()=>{hap();S.a=S.a?null:C.a[0].k;render()};
 $('terms').onchange=mainBtn;$('back').onclick=back;
@@ -234,7 +262,7 @@ $('bundles').innerHTML=(U.bn||[]).map((b,i)=>{const n=[5,12,25][i]||'',p=[4,9,18
 // studio
 $('hStu').textContent=L('🎨 סטודיו AI','🎨 AI Studio');$('hEng').textContent=L('🎁 בונוסים ואתגרים','🎁 Bonuses & challenges');
 $('stuN').textContent=L('מוצרי תמונה: רק חפצים, חיות, אוכל או דמויות מצוירות — בלי אנשים אמיתיים. נכשל? הכוכבים חוזרים לקרדיט.','Photo products: objects, pets, food or cartoon characters only — no real people. Failed? Stars go back to your credit.');
-$('stu').innerHTML=(C.x||[]).map((x,i)=>`<div class="card" data-x="st-${x.k}" style="animation-delay:${i*30}ms"><div class="ic" style="margin-bottom:8px">${x.e}</div><span class="price">${x.p}⭐</span><b>${esc(EN?x.ne:x.n)}</b><small>${esc(EN?x.de:x.d)}</small></div>`).join('');
+gnRender();$('stu').innerHTML=(C.x||[]).filter(x=>!GN[x.k]).map((x,i)=>`<div class="card" data-x="st-${x.k}" style="animation-delay:${i*30}ms"><div class="ic" style="margin-bottom:8px">${x.e}</div><span class="price">${x.p}⭐</span><b>${esc(EN?x.ne:x.n)}</b><small>${esc(EN?x.de:x.d)}</small></div>`).join('');
 $('eng').innerHTML=[['checkin','🎁',L('צ\'ק-אין יומי','Daily check-in'),L(`+${(C.g||{}).ci||1}⭐ קרדיט כל יום`,`+${(C.g||{}).ci||1}⭐ credit every day`)],['earn','📲',L('פרסם והרווח','Post & earn'),L(`שתפו סרטון ב-TikTok/Reels וקבלו ${(C.g||{}).er||5}⭐`,`Share a video on TikTok/Reels, get ${(C.g||{}).er||5}⭐`)],['challenge','🏆',L('האתגר השבועי','Weekly challenge'),L(`פרס ${(C.g||{}).cp||50}⭐ לזוכה`,`${(C.g||{}).cp||50}⭐ prize for the winner`)],['trending','🔥',L('טרנדי השבוע','Trending this week'),L('התבניות הכי פופולריות','Most popular templates')]].map(x=>`<div class="card row" data-x="${x[0]}"><div class="ic">${x[1]}</div><div style="flex:1"><b>${x[2]}</b><small>${x[3]}</small></div></div>`).join('');
 // deals
 const sale=()=>DL.sl&&DL.sl.u*1000>Date.now()?DL.sl:null;
