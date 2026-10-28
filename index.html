@@ -94,7 +94,7 @@ function render(){
  mainBtn();
 }
 function mainBtn(){if(!tg)return;const mb=tg.MainButton;let txt=null,ok=false;
- if(S.step==0){txt='המשך ←';ok=S.mode!='photo'||!!S.t}else if(S.step==1){txt='המשך ←';ok=!!S.m}else if(S.step==2){txt='לסיכום ←';ok=true}else{txt=`הזמן ב-${price()}⭐ ו${S.mode=='photo'?'שלח תמונה':'כתוב תיאור'}`;ok=$('terms').checked}
+ if(S.step==0){ok=S.mode!='photo'||!!S.t;txt=ok?'המשך ←':'⬇️ בחר/י תבנית למטה'}else if(S.step==1){txt='המשך ←';ok=!!S.m}else if(S.step==2){txt='לסיכום ←';ok=true}else{txt=`הזמן ב-${price()}⭐ ו${S.mode=='photo'?'שלח תמונה':'כתוב תיאור'}`;ok=$('terms').checked}
  mb.setText(txt);mb.show();ok?mb.enable():mb.disable();mb.color=ok?(tg.themeParams.button_color||'#8b5cf6'):'#777';
  tg.BackButton&&(S.step?tg.BackButton.show():tg.BackButton.hide())}
 function next(){if(S.step==0&&S.mode=='photo'&&!S.t||S.step==1&&!S.m)return;if(S.step<3){S.step++;render();scrollTo({top:0,behavior:'smooth'});return}
@@ -103,7 +103,7 @@ function next(){if(S.step==0&&S.mode=='photo'&&!S.t||S.step==1&&!S.m)return;if(S
 function go(p){const u=`https://t.me/${C.b}?start=${p}`;if(tg){tg.HapticFeedback&&tg.HapticFeedback.notificationOccurred('success');tg.openTelegramLink(u);setTimeout(()=>tg.close(),300)}else location.href=u}
 function back(){if(S.step>0){S.step--;render()}}
 document.body.addEventListener('click',e=>{const c=e.target.closest('[data-mo],[data-t],[data-m],[data-d],[data-a]');if(!c)return;hap();
- if(c.dataset.mo){if(S.mode!=c.dataset.mo){S.mode=c.dataset.mo;S.m=S.mode=='t2v'?C.v[0].k:null;S.d=S.m?curM().ds[0][0]:null}render();if(S.mode!='photo')setTimeout(next,250);return}
+ if(c.dataset.mo){if(S.mode!=c.dataset.mo){S.mode=c.dataset.mo;S.m=S.mode=='t2v'?C.v[0].k:null;S.d=S.m?curM().ds[0][0]:null}render();if(S.mode!='photo')setTimeout(next,250);else if(!S.t)setTimeout(()=>$('tplBox').scrollIntoView({behavior:'smooth',block:'start'}),150);return}
  if(c.dataset.t){S.t=c.dataset.t;render();setTimeout(next,250);return}
  if(c.dataset.m){S.m=c.dataset.m;S.d=curM().ds[0][0];render();return}
  if(c.dataset.d){S.d=+c.dataset.d}if(c.dataset.a){S.a=c.dataset.a}render()});
