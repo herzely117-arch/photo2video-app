@@ -2,125 +2,227 @@
 <html lang="he" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Photo ← Video AI</title>
-<link rel="icon" href="logo.png">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Photo2Video</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800&family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--bg:var(--tg-theme-bg-color,#0f0c29);--bg2:var(--tg-theme-secondary-bg-color,#1a1640);--tx:var(--tg-theme-text-color,#fff);--hint:var(--tg-theme-hint-color,#a9a3d6);--btn:var(--tg-theme-button-color,#8b5cf6);--btx:var(--tg-theme-button-text-color,#fff);--grad:linear-gradient(135deg,#7c3aed,#db2777 60%,#f59e0b)}
+:root{--bg:#0b0b14;--fg:#f4f4fb;--hint:#9a9ab0;--card:rgba(255,255,255,.06);--line:rgba(255,255,255,.10);--acc:#8b5cf6;--acc2:#ec4899;--acc3:#06b6d4;--ok:#22c55e;--glass:rgba(20,20,35,.55)}
+.light{--bg:#f6f5fb;--fg:#15132a;--hint:#6b6880;--card:rgba(255,255,255,.75);--line:rgba(20,10,60,.10);--glass:rgba(255,255,255,.7)}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{margin:0;font-family:-apple-system,"Segoe UI",Heebo,Arial,sans-serif;background:var(--bg);color:var(--tx);padding-bottom:100px}
-.hero{position:relative;height:210px;background:url(hero.jpg) center/cover;border-radius:0 0 28px 28px;overflow:hidden}
-.hero:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 30%,var(--bg) 100%)}
-.brand{position:absolute;z-index:1;bottom:14px;right:16px;display:flex;gap:12px;align-items:center}
-.brand img{width:58px;height:58px;border-radius:16px;box-shadow:0 6px 24px #db277766}
-.brand h1{margin:0;font-size:22px}.brand p{margin:2px 0 0;color:var(--hint);font-size:13px}
-.wrap{padding:0 16px}
-h2{font-size:17px;margin:22px 0 10px;display:flex;align-items:center;gap:8px}
-.steps{display:flex;gap:6px;margin:16px 0 4px}.steps i{flex:1;height:4px;border-radius:4px;background:var(--bg2)}.steps i.on{background:var(--grad)}
+html,body{margin:0;background:var(--bg);color:var(--fg);font-family:Heebo,Inter,system-ui,sans-serif;min-height:100%}
+[lang=en] body{font-family:Inter,Heebo,system-ui,sans-serif}
+body:before{content:"";position:fixed;inset:-20%;z-index:-1;background:radial-gradient(40% 35% at 15% 10%,#8b5cf655,transparent 70%),radial-gradient(35% 30% at 90% 20%,#ec489944,transparent 70%),radial-gradient(40% 30% at 50% 100%,#06b6d433,transparent 70%);animation:float 18s ease-in-out infinite alternate}
+@keyframes float{to{transform:translate3d(3%,-3%,0) rotate(6deg)}}
+.wrap{max-width:560px;margin:0 auto;padding:14px 14px 110px}
+.top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.logo{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--acc),var(--acc2));display:grid;place-items:center;font-size:20px;box-shadow:0 6px 20px #8b5cf655}
+.top h1{font-size:19px;margin:0;font-weight:800;letter-spacing:-.3px}.top p{margin:0;color:var(--hint);font-size:12.5px}
+.chip{display:inline-flex;align-items:center;gap:4px;padding:6px 11px;border-radius:999px;background:var(--card);border:1px solid var(--line);font-size:12.5px;cursor:pointer;backdrop-filter:blur(12px)}
+.chip.sel{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;border-color:transparent}
+.sp{flex:1}
+.glass{background:var(--card);border:1px solid var(--line);border-radius:20px;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.hero{padding:16px;margin:6px 0 14px;background:linear-gradient(135deg,#8b5cf633,#ec489922);position:relative;overflow:hidden}
+.hero b{font-size:15px}.hero small{display:block;color:var(--hint);margin-top:3px}
+.hero .bal{position:absolute;inset-inline-end:14px;top:14px;font-weight:800}
+h2{font-size:16px;margin:18px 2px 10px;font-weight:800}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.card{background:var(--bg2);border-radius:18px;padding:14px;border:2px solid transparent;transition:.2s;cursor:pointer;position:relative;overflow:hidden}
-.card:active{transform:scale(.97)}.card.sel{border-color:var(--btn);box-shadow:0 0 0 4px #8b5cf633}
-.card .ic{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:22px;margin-bottom:8px}
-.card b{display:block;font-size:15px}.card small{color:var(--hint);font-size:12px;line-height:1.35;display:block;margin-top:4px}
-.price{position:absolute;top:10px;left:10px;font-size:12px;background:#0003;padding:3px 8px;border-radius:20px}
-.list .card{display:flex;gap:12px;align-items:center;margin-bottom:10px}
-.meter{display:flex;gap:3px;margin-top:5px}.meter span{width:14px;height:5px;border-radius:3px;background:#8884}.meter span.on{background:var(--grad)}
-.row{display:flex;gap:10px}.row .card{flex:1;text-align:center}
-.chips{display:flex;flex-wrap:wrap;gap:8px}.chip{padding:9px 14px;border-radius:20px;background:var(--bg2);border:2px solid transparent;font-size:14px;cursor:pointer}.chip.sel{border-color:var(--btn)}
-.toggle{display:flex;justify-content:space-between;align-items:center;background:var(--bg2);border-radius:18px;padding:14px}
-.sw{width:50px;height:30px;border-radius:15px;background:#8885;position:relative;transition:.2s}.sw:after{content:"";position:absolute;top:3px;right:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:.2s}.sw.on{background:var(--btn)}.sw.on:after{right:23px}
-.sum{background:var(--bg2);border-radius:18px;padding:14px;line-height:1.9}.sum .t{display:flex;justify-content:space-between}.total{font-size:20px;font-weight:700;border-top:1px solid #8883;margin-top:6px;padding-top:6px}
-.terms{display:flex;gap:10px;align-items:flex-start;margin-top:14px;font-size:13px;color:var(--hint)}.terms input{width:20px;height:20px;accent-color:var(--btn)}
-.tl{margin-top:8px}.tl div{display:flex;gap:12px;align-items:center;padding:10px 0}.tl em{width:34px;height:34px;border-radius:50%;background:var(--bg2);display:grid;place-items:center;font-style:normal}
-.btn{display:block;width:100%;padding:15px;border:0;border-radius:16px;background:var(--grad);color:#fff;font-size:16px;font-weight:700;margin-top:12px;cursor:pointer}
-.btn.ghost{background:var(--bg2);color:var(--tx)}
-.top{display:flex;justify-content:space-between;margin-top:16px}
-.hide{display:none}
-.fade{animation:f .35s ease}@keyframes f{from{opacity:0;transform:translateY(10px)}to{opacity:1}}
+.list{display:grid;gap:10px}
+.card{padding:13px;border-radius:18px;background:var(--card);border:1.5px solid var(--line);cursor:pointer;position:relative;transition:transform .15s,border-color .2s,box-shadow .2s;backdrop-filter:blur(14px);animation:in .35s both}
+.card:active{transform:scale(.97)}
+.card.sel{border-color:var(--acc);box-shadow:0 0 0 3px #8b5cf640,0 10px 30px #8b5cf630}
+.card b{display:block;font-size:14.5px}.card small{color:var(--hint);font-size:12px;display:block;margin-top:3px;line-height:1.35}
+.row{display:flex;align-items:center;gap:12px}
+.ic{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;font-size:21px;flex:none;background:linear-gradient(135deg,#8b5cf640,#ec489930)}
+.price{position:absolute;inset-inline-end:10px;top:10px;font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px;background:#0006;color:#fff}
+.tag{font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:999px;background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;margin-inline-start:6px}
+.thumb{height:92px;border-radius:12px;margin:-3px -3px 9px;background:#0003 center/cover}
+.meter{display:inline-flex;gap:2px;vertical-align:middle;margin:0 3px}.meter span{width:9px;height:5px;border-radius:3px;background:var(--line)}.meter span.on{background:linear-gradient(90deg,var(--acc),var(--acc2))}
+.sum .t{display:flex;justify-content:space-between;padding:9px 2px;border-bottom:1px dashed var(--line);font-size:14px}.sum .t span{color:var(--hint)}
+.sum .total{font-size:18px;font-weight:800;border:0}.sum .total span{color:var(--fg)}
+s{color:var(--hint);font-weight:400;font-size:14px;margin-inline-end:6px}
+.steps{display:flex;gap:6px;margin:4px 0 6px}.steps i{flex:1;height:4px;border-radius:4px;background:var(--line);transition:.3s}.steps i.on{background:linear-gradient(90deg,var(--acc),var(--acc2))}
+.hide{display:none!important}
+.fade{animation:in .35s both}@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.btn{display:block;width:100%;border:0;border-radius:16px;padding:15px;font:inherit;font-weight:800;font-size:15.5px;color:#fff;background:linear-gradient(135deg,var(--acc),var(--acc2));box-shadow:0 10px 30px #8b5cf650;cursor:pointer;margin-top:14px}
+.btn.ghost{background:var(--card);color:var(--fg);box-shadow:none;border:1px solid var(--line)}
+.btn:disabled{opacity:.45}
+.sw{width:46px;height:28px;border-radius:999px;background:var(--line);position:relative;transition:.2s;flex:none}.sw:after{content:"";position:absolute;top:3px;inset-inline-start:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:.2s}
+.sw.on{background:linear-gradient(135deg,var(--acc),var(--acc2))}.sw.on:after{inset-inline-start:21px}
+.terms{display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--hint);margin-top:12px}.terms input{width:20px;height:20px;accent-color:var(--acc)}
+a{color:var(--acc)}
+.tabs{position:fixed;bottom:0;left:0;right:0;display:flex;justify-content:space-around;padding:8px 8px calc(8px + env(safe-area-inset-bottom));background:var(--glass);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);border-top:1px solid var(--line);z-index:10}
+.tabs button{flex:1;background:none;border:0;color:var(--hint);font:inherit;font-size:11px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px;cursor:pointer;transition:color .2s}
+.tabs button i{font-style:normal;font-size:21px;transition:transform .2s}.tabs button.on{color:var(--fg)}.tabs button.on i{transform:translateY(-2px) scale(1.12)}
+.tabs button.on:after{content:"";width:18px;height:3px;border-radius:3px;background:linear-gradient(90deg,var(--acc),var(--acc2))}
+.gal{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.gi{border-radius:18px;overflow:hidden;position:relative;aspect-ratio:3/4;background:var(--card);border:1px solid var(--line);cursor:pointer;animation:in .4s both}
+.gi video,.gi img{width:100%;height:100%;object-fit:cover;display:block}
+.gi .cap{position:absolute;bottom:0;left:0;right:0;padding:24px 10px 9px;background:linear-gradient(transparent,#000c);color:#fff;font-size:12.5px;font-weight:700}
+.gi .cap small{display:block;font-weight:500;opacity:.8;font-size:11px}
+.sk{background:linear-gradient(90deg,var(--card) 25%,rgba(255,255,255,.14) 50%,var(--card) 75%);background-size:200% 100%;animation:sh 1.2s infinite}@keyframes sh{to{background-position:-200% 0}}
+.link{font-family:Inter,monospace;font-size:12.5px;padding:12px;border-radius:14px;background:#0003;word-break:break-all;direction:ltr;text-align:left;margin-top:10px}
+.big{font-size:34px;font-weight:800;background:linear-gradient(135deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.onb{position:fixed;inset:0;z-index:50;background:var(--bg);display:flex;flex-direction:column}
+.onb .slides{flex:1;display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none}.onb .slides::-webkit-scrollbar{display:none}
+.onb .sl{flex:0 0 100%;scroll-snap-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px}
+.onb .em{font-size:76px;width:150px;height:150px;border-radius:40px;display:grid;place-items:center;background:linear-gradient(135deg,#8b5cf655,#ec489944);box-shadow:0 20px 60px #8b5cf640;margin-bottom:28px;animation:pop .6s both}
+@keyframes pop{from{transform:scale(.6);opacity:0}}
+.onb h3{font-size:24px;margin:0 0 10px;font-weight:800}.onb p{color:var(--hint);margin:0;font-size:15px;line-height:1.5;max-width:320px}
+.dots{display:flex;gap:6px;justify-content:center;margin:10px}.dots i{width:7px;height:7px;border-radius:9px;background:var(--line);transition:.3s}.dots i.on{width:22px;background:var(--acc)}
+.onb .ctl{padding:16px 22px calc(22px + env(safe-area-inset-bottom))}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#000c;color:#fff;padding:9px 16px;border-radius:999px;font-size:13px;z-index:60;animation:in .3s}
+.note{font-size:11.5px;color:var(--hint);text-align:center;margin-top:10px}
 </style>
 </head>
 <body>
-<div class="hero"><div class="brand"><img src="logo.png" alt=""><div><h1>Photo ← Video AI</h1><p>תמונה או טקסט ← סרטון בשניות ✨</p></div></div></div>
-<div class="wrap">
+<div class="wrap" id="app">
+ <div class="top"><div class="logo">🎬</div><div><h1>Photo2Video AI</h1><p id="sub"></p></div><span class="sp"></span><span class="chip" id="lgT"></span></div>
+ <section id="pCreate">
   <div class="steps"><i></i><i></i><i></i><i></i></div>
-  <div class="top"><span id="lgT" class="chip"></span><span id="hist" class="chip">📂 הסרטונים שלי</span></div>
-  <section id="s0" class="fade"><h2>✨ מה ניצור?</h2><div class="list" id="modes"></div><div id="tplBox"><h2>🎨 בחר/י תבנית</h2><div class="grid" id="tpls"></div></div><div id="txtBox" class="hide sum" style="margin-top:12px"></div></section>
-  <section id="s1" class="hide"><h2>🤖 בחר/י מודל AI</h2><div class="list" id="models"></div>
-    <div id="durBox" class="hide"><h2>⏱ אורך הסרטון</h2><div class="row" id="durs"></div></div></section>
-  <section id="s2" class="hide"><h2>🔊 סאונד מובנה</h2>
-    <div class="toggle" id="audT"><div><b>הוסף סאונד AI</b><br><small style="color:var(--hint)" id="audP"></small></div><div class="sw" id="sw"></div></div>
-    <div id="audBox" class="hide" style="margin-top:12px"><div class="chips" id="auds"></div></div></section>
-  <section id="s3" class="hide"><h2>🧾 סיכום הזמנה</h2><div class="sum" id="sum"></div>
-    <label class="terms"><input type="checkbox" id="terms"><span>קראתי ואני מסכים/ה ל<a href="#" id="tlink" style="color:var(--btn)">תנאי השימוש</a>: תוכן משפחתי בלבד, רק תמונות שלי או באישור, ללא קטינים.</span></label>
-    <h2>⏳ מה קורה עכשיו?</h2>
-    <div class="tl"><div><em id="s1i">📸</em><span id="s1t">שולחים תמונה בצ'אט עם הבוט</span></div><div><em>⭐</em><span>משלמים בכוכבים בחשבונית</span></div><div><em>🎬</em><span id="etaL"></span></div><div><em>📥</em><span>הסרטון מגיע לצ'אט ונשמר ב"הסרטונים שלי"</span></div></div>
-  </section>
-  <button class="btn ghost hide" id="back">→ חזרה</button>
+  <div id="s0">
+   <div class="glass hero" id="hero"></div>
+   <h2 id="hWhat"></h2><div class="list" id="modes"></div>
+   <div id="tplBox"><h2 id="hTpl"></h2><div class="grid" id="tpls"></div></div>
+  </div>
+  <div id="s1" class="hide"><h2 id="hModel"></h2><div class="list" id="models"></div>
+   <div id="durBox"><h2 id="hDur"></h2><div class="grid" id="durs"></div></div></div>
+  <div id="s2" class="hide"><h2 id="hSound"></h2>
+   <div class="card row" id="audT"><div class="ic">🎵</div><div style="flex:1"><b id="audL"></b><small id="audP"></small></div><div class="sw" id="sw"></div></div>
+   <div id="audBox" style="margin-top:10px;display:flex;flex-wrap:wrap;gap:8px"></div></div>
+  <div id="s3" class="hide"><h2 id="hSum"></h2><div class="glass sum" style="padding:6px 14px" id="sum"></div>
+   <div class="glass" style="padding:14px;margin-top:12px"><b id="hNext"></b><div class="list" style="margin-top:8px;font-size:13.5px" id="nextL"></div></div>
+   <label class="terms"><input type="checkbox" id="terms"><span id="termsL"></span></label></div>
+  <button class="btn ghost hide" id="back"></button>
+ </section>
+ <section id="pVideos" class="hide"><div class="glass" style="padding:22px;text-align:center"><div style="font-size:50px">📂</div><h2 id="hVid" style="margin:8px 0"></h2><p id="vidP" style="color:var(--hint)"></p><button class="btn" id="hist"></button></div></section>
+ <section id="pGallery" class="hide"><h2 id="hGal"></h2><div class="gal" id="gal"></div><p class="note" id="galN"></p></section>
+ <section id="pInvite" class="hide">
+  <div class="glass" style="padding:18px;text-align:center"><div style="color:var(--hint);font-size:13px" id="balL"></div><div class="big" id="bal"></div><div id="ffL" style="font-size:13px"></div></div>
+  <h2 id="hInv"></h2><div class="glass" style="padding:16px"><div id="invP" style="font-size:14px;line-height:1.5"></div><div class="link" id="rlink"></div>
+   <div class="grid" style="margin-top:4px"><button class="btn" id="shareB"></button><button class="btn ghost" id="copyB"></button></div><p class="note" id="refN"></p></div>
+  <h2 id="hBuy"></h2><div class="list" id="bundles"></div>
+ </section>
 </div>
+<nav class="tabs" id="tabs"></nav>
+<div class="onb hide" id="onb"><div class="slides" id="slides"></div><div class="dots" id="dots"></div><div class="ctl"><button class="btn" id="onbB"></button></div></div>
 <script>
-const tg=window.Telegram&&Telegram.WebApp;tg&&tg.ready();tg&&tg.expand();
+const tg=window.Telegram&&Telegram.WebApp&&Telegram.WebApp.initData?Telegram.WebApp:null;tg&&tg.ready();tg&&tg.expand();
 let C=null;try{const h=new URLSearchParams(location.hash.slice(1)).get('c');let b=h.replace(/-/g,'+').replace(/_/g,'/');while(b.length%4)b+='=';C=JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(b),c=>c.charCodeAt(0))))}catch(e){}
 const $=id=>document.getElementById(id);
-const EN={"✍️ אחרי ההזמנה תכתוב/י בצ'אט תיאור קצר (אפשר בעברית). אפשר לשפר אותו עם AI בחינם. תוכן משפחתי בלבד, בלי אנשים אמיתיים או מפורסמים.": "✍️ After ordering, type a short description in the chat. You can improve it with AI for free. Family-friendly only, no real or famous people.", "שולחים תמונה בצ'אט וכותבים מה יקרה בסרטון (אפשר לשפר עם AI בחינם)": "Send a photo in the chat and type what should happen (free AI improve)", "כותבים תיאור בצ'אט (אפשר לשפר עם AI בחינם)": "Type a description in the chat (free AI improve)", "שולחים תמונה בצ'אט עם הבוט": "Send a photo in the chat with the bot", "הסרטון מגיע לצ'אט ונשמר ב\"הסרטונים שלי\"": "The video arrives in the chat and is saved in \"My videos\"", "קראתי ואני מסכים/ה ל": "I have read and agree to the ", "תנאי השימוש": "terms of service", ": תוכן משפחתי בלבד, רק תמונות שלי או באישור, ללא קטינים.": ": family-friendly only, only my own photos or with permission, no minors.", "1. תוכן רגיל ומשפחתי בלבד.\n2. אסור תוכן מיני או עירום.\n3. רק תמונות שלך או באישור מפורש.\n4. אסור תמונות של קטינים.\n5. תשלום בכוכבים סופי.\n6. הפרה = חסימה.": "1. Regular, family-friendly content only.\n2. No sexual content or nudity.\n3. Only your own photos or with explicit permission.\n4. No photos of minors.\n5. Star payments are final.\n6. Violation = ban.", "יש לאשר את תנאי השימוש": "Please accept the terms of service", "פתח/י את האפליקציה מתוך הבוט 🙂": "Open the app from the bot 🙂", "שלח/י לבוט /app": "Send /app to the bot", "תמונה או טקסט ← סרטון בשניות ✨": "Photo or text → video in seconds ✨", "כותבים רעיון, AI יוצר תמונה ומנפיש אותה": "Write an idea; AI creates an image and animates it", "מעלים תמונה וכותבים מה יקרה בסרטון": "Upload a photo and describe what should happen", "כותבים רעיון ומקבלים סרטון ישירות": "Write an idea and get a video directly", "מעלים תמונה ובוחרים תבנית": "Upload a photo and pick a template", "תמונה + תיאור ← וידאו": "Photo + description → video", "טקסט ← תמונה ← וידאו": "Text → image → video", "טקסט ← וידאו": "Text → video", "תמונה ← וידאו": "Photo → video", "⭐ · מוזיקה/אווירה שנוצרת ב-AI": "⭐ · AI-generated music/ambience", "⏳ מה קורה עכשיו?": "⏳ What happens next?", "משלמים בכוכבים בחשבונית": "Pay with Stars on the invoice", "⬇️ בחר/י תבנית למטה": "⬇️ Pick a template below", "🤖 בחר/י מודל AI": "🤖 Choose an AI model", "📂 הסרטונים שלי": "📂 My videos", "🎨 בחר/י תבנית": "🎨 Choose a template", "🔊 סאונד מובנה": "🔊 Built-in sound", "🧾 סיכום הזמנה": "🧾 Order summary", "הוסף סאונד AI": "Add AI sound", "⏱ אורך הסרטון": "⏱ Video length", "+ סאונד (כדקה)": "+ sound (~1 min)", "עם פס התקדמות חי": "with a live progress bar", "הסרטון נוצר (": "Video is created (", "✨ מה ניצור?": "✨ What shall we create?", "⌛ זמן משוער": "⌛ Estimated time", "שלח תמונה ותיאור": "send photo + description", "שלח תמונה": "send photo", "כתוב תיאור": "write description", "הזמן ב-": "Order for ", "לסיכום ←": "Summary →", "המשך ←": "Continue →", "→ חזרה": "← Back", "🤖 מודל": "🤖 Model", "⏱ אורך": "⏱ Length", "🔊 סאונד": "🔊 Sound", "מהירות": "speed", "איכות": "quality", "תבנית": "Template", "סוג": "Type", "ללא": "None", "סה\"כ": "Total", "שניות": "sec", "דק'": "min", "כ-": "~", "⭐ ו": "⭐ & "};
-const EK=Object.keys(EN).sort((a,b)=>b.length-a.length),ERX=new RegExp(EK.map(k=>k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|'),'g');
-let LG=localStorage.getItem('p2v_lang')||(C&&C.lg)||'he';
-const T=s=>LG=='en'&&typeof s=='string'?s.replace(ERX,m=>EN[m]).replace(/←/g,'→'):s;
-function i18nDom(){document.documentElement.lang=LG;document.documentElement.dir=LG=='en'?'ltr':'rtl';$('lgT').textContent=LG=='en'?'🇮🇱 עברית':'🇬🇧 English';
- if(LG!='en')return;const w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);let n;while(n=w.nextNode()){if(/[\u0590-\u05FF←→]/.test(n.nodeValue)&&n.parentNode.id!='lgT'&&!n.parentNode.closest('[data-t]'))n.nodeValue=T(n.nodeValue)}}
-if(!C){document.querySelector('.wrap').innerHTML='<h2>פתח/י את האפליקציה מתוך הבוט 🙂</h2><p style="color:var(--hint)">שלח/י לבוט /app</p>';throw 0}
-const S={step:0,mode:'photo',t:null,m:null,d:null,a:null};
-const MODES=[['photo','📸','תמונה ← וידאו','מעלים תמונה ובוחרים תבנית'],['flux','🖼','טקסט ← תמונה ← וידאו','כותבים רעיון, AI יוצר תמונה ומנפיש אותה'],['custom','📸','תמונה + תיאור ← וידאו','מעלים תמונה וכותבים מה יקרה בסרטון'],['t2v','🎬','טקסט ← וידאו','כותבים רעיון ומקבלים סרטון ישירות']];
-const ML=()=>S.mode=='t2v'?C.v:C.m;const curM=()=>ML().find(x=>x.k==S.m);
-const ICONS=['😊','💃','🎥','🛍','🖼','✨','🌟','🎞','🌈','🚀'],COL=['#7c3aed','#db2777','#0ea5e9','#f59e0b','#10b981','#ef4444'];
-const hap=t=>tg&&tg.HapticFeedback&&tg.HapticFeedback.selectionChanged();
-function meter(n){return '<div class="meter">'+[1,2,3,4,5].map(i=>`<span class="${i<=n?'on':''}"></span>`).join('')+'</div>'}
+let LG=localStorage.getItem('p2v_lang')||(C&&C.lg)||((navigator.language||'').startsWith('he')?'he':'en');
+const EN=LG=='en',L=(h,e)=>EN?e:h,AR=EN?'→':'←';
+document.documentElement.lang=LG;document.documentElement.dir=EN?'ltr':'rtl';
+const dark=tg?tg.colorScheme!='light':!matchMedia('(prefers-color-scheme: light)').matches;document.body.classList.toggle('light',!dark);
+if(tg&&tg.themeParams&&tg.themeParams.bg_color){document.documentElement.style.setProperty('--bg',tg.themeParams.bg_color)}
+const hap=(k)=>{try{k?tg.HapticFeedback.notificationOccurred(k):tg.HapticFeedback.selectionChanged()}catch(e){}};
 function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function toast(t){const d=document.createElement('div');d.className='toast';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),1800)}
+$('lgT').textContent=EN?'🇮🇱 עברית':'🇬🇧 English';
+$('lgT').onclick=()=>{hap();localStorage.setItem('p2v_lang',EN?'he':'en');location.reload()};
+$('sub').textContent=L('תמונה או טקסט ← סרטון בשניות ✨','Photo or text → video in seconds ✨');
+if(!C){$('app').insertAdjacentHTML('beforeend',`<div class="glass" style="padding:24px;text-align:center"><h2>${L('פתח/י את האפליקציה מתוך הבוט 🙂','Open the app from the bot 🙂')}</h2><p style="color:var(--hint)">${L('שלח/י לבוט /app','Send /app to the bot')}</p></div>`);$('pCreate').remove();throw 0}
+const U=C.u||{cr:0,ff:0,rc:0,rb:3,bn:[]};
+const S={step:0,mode:'photo',t:null,m:null,d:null,a:null,tab:'create'};
+const MODES=[['photo','📸',L('תמונה ← וידאו','Photo → video'),L('מעלים תמונה ובוחרים תבנית','Upload a photo and pick a template')],
+ ['custom','🪄',L('תמונה + תיאור ← וידאו','Photo + description → video'),L('מעלים תמונה וכותבים מה יקרה בסרטון','Upload a photo and describe what happens')],
+ ['flux','🖼',L('טקסט ← תמונה ← וידאו','Text → image → video'),L('כותבים רעיון, AI יוצר תמונה ומנפיש אותה','Write an idea; AI creates an image and animates it')],
+ ['t2v','🎬',L('טקסט ← וידאו','Text → video'),L('כותבים רעיון ומקבלים סרטון ישירות','Write an idea and get a video directly')]];
+const GAL=[{k:'birthday',n:L('יום הולדת','Birthday'),m:'Wan 2.1'},{k:'new_year',n:L('שנה טובה','New Year'),m:'Seedance'},{k:'product_ad',n:L('פרסומת למוצר','Product ad'),m:'LTX'},
+ {k:'fox',n:L('טקסט ← תמונה ← וידאו','Text → image → video'),m:'FLUX + Wan',mode:'flux'},{k:'cinematic',n:L('מצלמה קולנועית','Cinematic camera'),m:'CogVideoX'},{k:'anniversary',n:L('יום נישואין','Anniversary'),m:'Wan 2.1'}];
+const ICONS={smile_wave:'😊',dance:'💃',cinematic:'🎥',product_ad:'🛍',birthday:'🎂',holiday:'✨',anniversary:'💞',new_year:'🎆'};
+const ML=()=>S.mode=='t2v'?C.v:C.m,curM=()=>ML().find(x=>x.k==S.m);
+const tn=t=>EN&&t.ne?t.ne:t.n,td=t=>EN&&t.de?t.de:t.d;
+const meter=n=>'<span class="meter">'+[1,2,3,4,5].map(i=>`<span class="${i<=n?'on':''}"></span>`).join('')+'</span>';
 function base(){if(S.mode=='flux')return C.fp;if(S.mode=='custom')return C.cp||2;if(S.mode=='t2v')return (C.v[0]||{p:3}).p;const t=C.t.find(x=>x.h==S.t);return t?t.p:0}
-function dsel(){const m=curM();if(!m)return null;return m.ds.find(x=>x[0]==S.d)||m.ds[0]}
-function price(){const b=base();if(!b)return 0;const d=dsel();return b+(d?d[1]:0)+(S.a?C.ap:0)}
-function eta(){const d=dsel();return d?d[2]+(S.mode=='flux'?25:0):0}
-function fmt(s){return s>=60?`כ-${Math.round(s/60*10)/10} דק'`:`כ-${s} שניות`}
+const dsel=()=>{const m=curM();return m?(m.ds.find(x=>x[0]==S.d)||m.ds[0]):null};
+function vprice(){const b=base();if(!b)return 0;const d=dsel();return b+(d?d[1]:0)}
+function price(){return vprice()+(S.a?C.ap:0)}
+function disc(){return U.ff?Math.max(1,Math.floor(vprice()/2))+(S.a?C.ap:0):price()}
+const eta=()=>{const d=dsel();return d?d[2]+(S.mode=='flux'?25:0):0};
+const fmt=s=>s>=60?L(`כ-${Math.round(s/6)/10} דק'`,`~${Math.round(s/6)/10} min`):L(`כ-${s} שניות`,`~${s} sec`);
+function hero(){$('hero').innerHTML=U.ff?`<span class="bal">🎁</span><b>${L('הסרטון הראשון ב-50% הנחה!','Your first video is 50% off!')}</b><small>${L('ההנחה תופיע אוטומטית בחשבונית','Applied automatically on the invoice')}</small>`
+ :`<span class="bal">${U.cr}⭐</span><b>${L('יתרת קרדיט','Credit balance')}</b><small>${L('הזמן חברים וקבל קרדיט ← לשונית „הזמן”','Invite friends for credit → “Invite” tab')}</small>`}
 function render(){
- $('modes').innerHTML=MODES.map(x=>`<div class="card ${S.mode==x[0]?'sel':''}" data-mo="${x[0]}"><div class="ic" style="background:#8b5cf633">${x[1]}</div><div style="flex:1"><b>${x[2]}</b><small>${x[3]}</small></div></div>`).join('');
- $('tplBox').classList.toggle('hide',S.mode!='photo');$('txtBox').classList.toggle('hide',S.mode=='photo');$('txtBox').innerHTML='✍️ אחרי ההזמנה תכתוב/י בצ\'אט תיאור קצר (אפשר בעברית). אפשר לשפר אותו עם AI בחינם. תוכן משפחתי בלבד, בלי אנשים אמיתיים או מפורסמים.';
- $('tpls').innerHTML=C.t.map((t,i)=>`<div class="card ${S.t==t.h?'sel':''}" data-t="${t.h}"><span class="price">${t.p}⭐</span><div class="ic" style="background:${COL[i%COL.length]}33">${ICONS[i%ICONS.length]}</div><b>${esc(t.n)}</b><small>${esc(t.d)}</small></div>`).join('');
- $('models').innerHTML=ML().map(m=>`<div class="card ${S.m==m.k?'sel':''}" data-m="${m.k}"><div class="ic" style="background:#8b5cf633">🤖</div><div style="flex:1"><b>${esc(m.l)}</b><small>מהירות ${meter(m.speed)} איכות ${meter(m.quality)}</small></div><small>⏱ ${fmt(m.ds[0][2])}</small></div>`).join('');
+ $('modes').innerHTML=MODES.map((x,i)=>`<div class="card row ${S.mode==x[0]?'sel':''}" data-mo="${x[0]}" style="animation-delay:${i*40}ms"><div class="ic">${x[1]}</div><div style="flex:1"><b>${x[2]}</b><small>${x[3]}</small></div></div>`).join('');
+ $('tplBox').classList.toggle('hide',S.mode!='photo');
+ const tps=[...C.t].sort((a,b)=>(b.s||0)-(a.s||0));
+ $('tpls').innerHTML=tps.map((t,i)=>{const g=GAL.find(x=>x.k==t.i);return `<div class="card ${S.t==t.h?'sel':''}" data-t="${t.h}" style="animation-delay:${i*30}ms">${g?`<div class="thumb" style="background-image:url(gallery/${g.k}.jpg)"></div>`:`<div class="ic" style="margin-bottom:8px">${ICONS[t.i]||'🎞'}</div>`}<span class="price">${t.p}⭐</span><b>${esc(tn(t))}${t.s?`<span class="tag">${L('חג','Seasonal')}</span>`:''}</b><small>${esc(td(t))}</small></div>`}).join('');
+ $('models').innerHTML=ML().map(m=>`<div class="card row ${S.m==m.k?'sel':''}" data-m="${m.k}"><div class="ic">🤖</div><div style="flex:1"><b>${esc(m.l)}</b><small>${L('מהירות','Speed')}${meter(m.speed)} ${L('איכות','Quality')}${meter(m.quality)}</small></div><small>⏱ ${fmt(m.ds[0][2])}</small></div>`).join('');
  const m=curM(),tp=base()||1;
- $('durs').innerHTML=m?m.ds.map(d=>`<div class="card ${S.d==d[0]?'sel':''}" data-d="${d[0]}"><b>${d[0]} שניות</b><small>${tp+d[1]}⭐ · ${fmt(d[2])}</small></div>`).join(''):'';
+ $('durs').innerHTML=m?m.ds.map(d=>`<div class="card ${S.d==d[0]?'sel':''}" data-d="${d[0]}"><b>${d[0]} ${L('שניות','sec')}</b><small>${tp+d[1]}⭐ · ${fmt(d[2])}</small></div>`).join(''):'';
  $('durBox').classList.toggle('hide',!(m&&m.ds.length>1));
- $('audP').textContent=`+${C.ap}⭐ · מוזיקה/אווירה שנוצרת ב-AI`;$('sw').classList.toggle('on',!!S.a);$('audBox').classList.toggle('hide',!S.a);
- $('auds').innerHTML=C.a.map(a=>`<span class="chip ${S.a==a.k?'sel':''}" data-a="${a.k}">${esc(a.l)}</span>`).join('');
- const t=S.mode=='photo'?C.t.find(x=>x.h==S.t):{n:MODES.find(x=>x[0]==S.mode)[2]};
- $('s1i').textContent=S.mode=='t2v'||S.mode=='flux'?'✍️':'📸';$('s1t').textContent=S.mode=='custom'?'שולחים תמונה בצ\'אט וכותבים מה יקרה בסרטון (אפשר לשפר עם AI בחינם)':S.mode=='photo'?'שולחים תמונה בצ\'אט עם הבוט':'כותבים תיאור בצ\'אט (אפשר לשפר עם AI בחינם)';
- if(t&&m){$('sum').innerHTML=`<div class="t"><span>🎨 ${S.mode=='photo'?'תבנית':'סוג'}</span><b>${esc(t.n)}</b></div><div class="t"><span>🤖 מודל</span><b>${esc(m.l)}</b></div><div class="t"><span>⏱ אורך</span><b>${dsel()[0]} שניות</b></div><div class="t"><span>🔊 סאונד</span><b>${S.a?esc(C.a.find(x=>x.k==S.a).l):'ללא'}</b></div><div class="t"><span>⌛ זמן משוער</span><b>${fmt(eta()+(S.a?60:0))}</b></div><div class="t total"><span>סה"כ</span><span>${price()}⭐</span></div>`;$('etaL').textContent=`הסרטון נוצר (${fmt(eta())}) עם פס התקדמות חי`+(S.a?' + סאונד (כדקה)':'')}
+ $('audP').textContent=`+${C.ap}⭐ · `+L('מוזיקה/אווירה שנוצרת ב-AI','AI-generated music/ambience');$('sw').classList.toggle('on',!!S.a);$('audBox').classList.toggle('hide',!S.a);
+ $('audBox').innerHTML=C.a.map(a=>`<span class="chip ${S.a==a.k?'sel':''}" data-a="${a.k}">${esc(EN&&a.le?a.le:a.l)}</span>`).join('');
+ const t=S.mode=='photo'?C.t.find(x=>x.h==S.t):null,tname=t?tn(t):MODES.find(x=>x[0]==S.mode)[2];
+ if((t||S.mode!='photo')&&m){const pr=disc(),full=price();
+  $('sum').innerHTML=`<div class="t"><span>🎨 ${S.mode=='photo'?L('תבנית','Template'):L('סוג','Type')}</span><b>${esc(tname)}</b></div><div class="t"><span>🤖 ${L('מודל','Model')}</span><b>${esc(m.l)}</b></div><div class="t"><span>⏱ ${L('אורך','Length')}</span><b>${dsel()[0]} ${L('שניות','sec')}</b></div><div class="t"><span>🔊 ${L('סאונד','Sound')}</span><b>${S.a?esc((x=>EN&&x.le?x.le:x.l)(C.a.find(x=>x.k==S.a))):L('ללא','None')}</b></div><div class="t"><span>⌛ ${L('זמן משוער','Estimated time')}</span><b>${fmt(eta()+(S.a?60:0))}</b></div>${pr<full?`<div class="t"><span>🎁 ${L('הנחת סרטון ראשון','First-video discount')}</span><b>−${full-pr}⭐</b></div>`:''}<div class="t total"><span>${L('סה"כ','Total')}</span><span>${pr<full?`<s>${full}⭐</s>`:''}${pr}⭐</span></div>`+(U.cr>=pr?`<div class="note" style="text-align:start">💳 ${L(`יש לך ${U.cr}⭐ קרדיט — אפשר לשלם ממנו בבוט`,`You have ${U.cr}⭐ credit — pay with it in the bot`)}</div>`:'');
+  const s1=S.mode=='custom'?L('שולחים תמונה וכותבים מה יקרה (שיפור AI בחינם)','Send a photo and describe what happens (free AI improve)'):S.mode=='photo'?L('שולחים תמונה בצ\'אט עם הבוט','Send a photo in the chat'):L('כותבים תיאור בצ\'אט (שיפור AI בחינם)','Type a description in the chat (free AI improve)');
+  $('nextL').innerHTML=[['⭐',L('משלמים בכוכבים או בקרדיט','Pay with Stars or credit')],[S.mode=='photo'||S.mode=='custom'?'📸':'✍️',s1],['⚡',L(`הסרטון נוצר (${fmt(eta())}) עם פס התקדמות חי`,`Video is created (${fmt(eta())}) with a live progress bar`)],['📤',L('משתפים עם חברים בלחיצה','Share with friends in one tap')]].map(x=>`<div class="row"><span>${x[0]}</span><span>${x[1]}</span></div>`).join('')}
  document.querySelectorAll('.steps i').forEach((e,i)=>e.classList.toggle('on',i<=S.step));
- ['s0','s1','s2','s3'].forEach((id,i)=>{const el=$(id);const h=i!=S.step;if(!h&&el.classList.contains('hide'))el.classList.add('fade');el.classList.toggle('hide',h)});
- $('back').classList.toggle('hide',S.step==0);
- i18nDom();mainBtn();
+ ['s0','s1','s2','s3'].forEach((id,i)=>{const el=$(id),h=i!=S.step;if(!h&&el.classList.contains('hide'))el.classList.add('fade');el.classList.toggle('hide',h)});
+ $('back').classList.toggle('hide',S.step==0||!!tg);mainBtn();
 }
-function mainBtn(){if(!tg)return;const mb=tg.MainButton;let txt=null,ok=false;
- if(S.step==0){ok=S.mode!='photo'||!!S.t;txt=ok?'המשך ←':'⬇️ בחר/י תבנית למטה'}else if(S.step==1){txt='המשך ←';ok=!!S.m}else if(S.step==2){txt='לסיכום ←';ok=true}else{txt=`הזמן ב-${price()}⭐ ו${S.mode=='photo'?'שלח תמונה':S.mode=='custom'?'שלח תמונה ותיאור':'כתוב תיאור'}`;ok=$('terms').checked}
- mb.setText(T(txt));mb.show();ok?mb.enable():mb.disable();mb.color=ok?(tg.themeParams.button_color||'#8b5cf6'):'#777';
- tg.BackButton&&(S.step?tg.BackButton.show():tg.BackButton.hide())}
-function next(){if(S.step==0&&S.mode=='photo'&&!S.t||S.step==1&&!S.m)return;if(S.step<3){S.step++;render();scrollTo({top:0,behavior:'smooth'});return}
- if(!$('terms').checked){tg&&tg.showAlert(T('יש לאשר את תנאי השימוש'));return}
- const p=`app-${S.mode=='photo'?S.t:S.mode}-${S.m}-${dsel()[0]}-${S.a||'none'}-1-${LG}`;go(p)}
-function go(p){const u=`https://t.me/${C.b}?start=${p}`;if(tg){tg.HapticFeedback&&tg.HapticFeedback.notificationOccurred('success');tg.openTelegramLink(u);setTimeout(()=>tg.close(),300)}else location.href=u}
+function okStep(){return S.step==0?(S.mode!='photo'||!!S.t):S.step==1?!!S.m:S.step==2?true:$('terms').checked}
+function btnText(){if(S.step==0)return okStep()?L('המשך ←','Continue →'):L('⬇️ בחר/י תבנית','⬇️ Pick a template');if(S.step<3)return S.step==2?L('לסיכום ←','Summary →'):L('המשך ←','Continue →');
+ return L(`הזמן ב-${disc()}⭐ ←`,`Order for ${disc()}⭐ →`)}
+let fb=null;
+function mainBtn(){const show=S.tab=='create';if(!tg){if(!fb){fb=document.createElement('button');fb.className='btn';fb.id='fb';fb.onclick=next;$('pCreate').appendChild(fb)}fb.textContent=btnText();fb.disabled=!okStep();return}
+ const mb=tg.MainButton;if(!show){mb.hide();tg.BackButton.hide();return}const ok=okStep();mb.setText(btnText());mb.show();ok?mb.enable():mb.disable();mb.color=ok?(tg.themeParams.button_color||'#8b5cf6'):'#777';
+ S.step?tg.BackButton.show():tg.BackButton.hide()}
+function next(){if(!okStep()){if(S.step==3){hap('error');(tg?tg.showAlert.bind(tg):alert)(L('יש לאשר את תנאי השימוש','Please accept the terms of service'))}return}
+ if(S.step<3){S.step++;render();scrollTo({top:0,behavior:'smooth'});return}
+ go(`app-${S.mode=='photo'?S.t:S.mode}-${S.m}-${dsel()[0]}-${S.a||'none'}-1-${LG}`)}
+function go(p){const u=`https://t.me/${C.b}?start=${p}`;hap('success');if(tg){tg.openTelegramLink(u);setTimeout(()=>tg.close(),300)}else location.href=u}
 function back(){if(S.step>0){S.step--;render()}}
-document.body.addEventListener('click',e=>{const c=e.target.closest('[data-mo],[data-t],[data-m],[data-d],[data-a]');if(!c)return;hap();
+document.body.addEventListener('click',e=>{const c=e.target.closest('[data-mo],[data-t],[data-m],[data-d],[data-a],[data-g],[data-tab],[data-b]');if(!c)return;hap();
+ if(c.dataset.tab){tab(c.dataset.tab);return}
+ if(c.dataset.b){go('buy-'+c.dataset.b);return}
+ if(c.dataset.g){const g=GAL.find(x=>x.k==c.dataset.g),t=C.t.find(x=>x.i==g.k);S.mode=g.mode||(t?'photo':'custom');S.t=t?t.h:null;S.step=0;S.m=null;tab('create');if(S.mode=='photo'&&S.t||S.mode!='photo')setTimeout(next,250);return}
  if(c.dataset.mo){if(S.mode!=c.dataset.mo){S.mode=c.dataset.mo;S.m=S.mode=='t2v'?C.v[0].k:null;S.d=S.m?curM().ds[0][0]:null}render();if(S.mode!='photo')setTimeout(next,250);else if(!S.t)setTimeout(()=>$('tplBox').scrollIntoView({behavior:'smooth',block:'start'}),150);return}
  if(c.dataset.t){S.t=c.dataset.t;render();setTimeout(next,250);return}
  if(c.dataset.m){S.m=c.dataset.m;S.d=curM().ds[0][0];render();return}
- if(c.dataset.d){S.d=+c.dataset.d}if(c.dataset.a){S.a=c.dataset.a}render()});
+ if(c.dataset.d)S.d=+c.dataset.d;if(c.dataset.a)S.a=c.dataset.a;render()});
 $('audT').onclick=()=>{hap();S.a=S.a?null:C.a[0].k;render()};
 $('terms').onchange=mainBtn;$('back').onclick=back;
-$('tlink').onclick=e=>{e.preventDefault();const t='1. תוכן רגיל ומשפחתי בלבד.\n2. אסור תוכן מיני או עירום.\n3. רק תמונות שלך או באישור מפורש.\n4. אסור תמונות של קטינים.\n5. תשלום בכוכבים סופי.\n6. הפרה = חסימה.';tg?tg.showAlert(T(t)):alert(T(t))};
-$('lgT').onclick=()=>{hap();LG=LG=='en'?'he':'en';localStorage.setItem('p2v_lang',LG);location.reload()};
-$('hist').onclick=()=>go('myvideos');
-if(tg){tg.MainButton.onClick(next);tg.BackButton.onClick(back);tg.setHeaderColor&&tg.setHeaderColor('bg_color')}
-else{const b=document.createElement('button');b.className='btn';b.textContent='המשך';b.onclick=next;document.querySelector('.wrap').appendChild(b)}
-render();
+// static text
+$('hWhat').textContent=L('✨ מה ניצור?','✨ What shall we create?');$('hTpl').textContent=L('🎨 בחר/י תבנית','🎨 Choose a template');
+$('hModel').textContent=L('🤖 בחר/י מודל AI','🤖 Choose an AI model');$('hDur').textContent=L('⏱ אורך הסרטון','⏱ Video length');
+$('hSound').textContent=L('🔊 סאונד','🔊 Sound');$('audL').textContent=L('הוסף סאונד AI','Add AI sound');$('hSum').textContent=L('🧾 סיכום הזמנה','🧾 Order summary');
+$('hNext').textContent=L('⏳ מה קורה עכשיו?','⏳ What happens next?');$('back').textContent=L('→ חזרה','← Back');
+$('termsL').innerHTML=L('קראתי ואני מסכים/ה ל<a href="#" id="tlink">תנאי השימוש</a>: תוכן משפחתי בלבד, רק תמונות שלי או באישור, ללא קטינים.','I have read and agree to the <a href="#" id="tlink">terms of service</a>: family-friendly only, only my own photos or with permission, no minors.');
+$('tlink').onclick=e=>{e.preventDefault();const t=L('1. תוכן רגיל ומשפחתי בלבד.\n2. אסור תוכן מיני או עירום.\n3. רק תמונות שלך או באישור מפורש.\n4. אסור תמונות של קטינים.\n5. תשלום בכוכבים סופי.\n6. הפרה = חסימה.','1. Regular, family-friendly content only.\n2. No sexual content or nudity.\n3. Only your own photos or with explicit permission.\n4. No photos of minors.\n5. Star payments are final.\n6. Violation = ban.');tg?tg.showAlert(t):alert(t)};
+$('hVid').textContent=L('הסרטונים שלי','My videos');$('vidP').textContent=L('כל הסרטונים שיצרת נשמרים בצ\'אט עם הבוט. לחיצה תציג את האחרונים.','All your videos are kept in the bot chat. Tap to list your latest ones.');$('hist').textContent=L('📂 הצג את הסרטונים שלי','📂 Show my videos');$('hist').onclick=()=>go('myvideos');
+$('hGal').textContent=L('🎞 דוגמאות','🎞 Examples');$('galN').textContent=L('תצוגה להמחשה · כל התמונות בדויות ונוצרו ב-AI · לחיצה בוחרת את הסגנון','Illustrative previews · all images are fictional, AI-made · tap to use the style');
+$('balL').textContent=L('יתרת קרדיט','Credit balance');$('bal').textContent=U.cr+'⭐';$('ffL').textContent=U.ff?L('🎁 הסרטון הראשון שלך ב-50% הנחה','🎁 Your first video is 50% off'):'';
+$('hInv').textContent=L('🎁 הזמן חברים','🎁 Invite friends');$('invP').innerHTML=L(`על כל חבר/ה שמצטרף/ת דרכך ומשלים/ה הזמנה ראשונה — <b>${U.rb}⭐ קרדיט</b> בשבילך.<br>הצטרפו ושילמו עד כה: <b>${U.rc}</b>`,`For every friend who joins via your link and completes a first paid order — <b>${U.rb}⭐ credit</b> for you.<br>Joined & paid so far: <b>${U.rc}</b>`);
+const RL=U.id?`https://t.me/${C.b}?start=ref${U.id}`:`https://t.me/${C.b}`;$('rlink').textContent=RL;
+$('shareB').textContent=L('📤 שתף','📤 Share');$('copyB').textContent=L('📋 העתק','📋 Copy');$('refN').textContent=L('הקרדיט ניתן רק אחרי תשלום אמיתי של החבר/ה','Credit is granted only after the friend’s real payment');
+$('shareB').onclick=()=>{hap();const u=`https://t.me/share/url?url=${encodeURIComponent(RL)}&text=${encodeURIComponent(L('🎬 הופכים תמונה לסרטון עם AI — נסו!','🎬 Turn a photo into a video with AI — try it!'))}`;tg?tg.openTelegramLink(u):open(u)};
+$('copyB').onclick=()=>{navigator.clipboard&&navigator.clipboard.writeText(RL);hap('success');toast(L('הקישור הועתק ✓','Link copied ✓'))};
+$('hBuy').textContent=L('⭐ חבילות קרדיט','⭐ Credit bundles');
+$('bundles').innerHTML=(U.bn||[]).map((b,i)=>{const n=[5,12,25][i]||'',p=[4,9,18][i]||'';return `<div class="card row" data-b="${b[0]}"><div class="ic">${['📦','🎁','💎'][i]||'⭐'}</div><div style="flex:1"><b>${L(`${n} סרטונים במחיר ${p}`,`${n} videos for the price of ${p}`)}</b><small>${L(`משלמים ${b[2]}⭐ ← מקבלים ${b[3]}⭐ קרדיט`,`Pay ${b[2]}⭐ → get ${b[3]}⭐ credit`)}</small></div><span class="tag" dir="ltr">−${Math.round(100-b[2]/b[3]*100)}%</span></div>`}).join('')||`<p class="note">${L('שלח/י /buy לבוט','Send /buy to the bot')}</p>`;
+// tabs
+const TABS=[['create','✨',L('יצירה','Create')],['videos','📂',L('הסרטונים שלי','My videos')],['gallery','🎞',L('דוגמאות','Gallery')],['invite','🎁',L('הזמן','Invite')]];
+$('tabs').innerHTML=TABS.map(t=>`<button data-tab="${t[0]}"><i>${t[1]}</i>${t[2]}</button>`).join('');
+let galDone=false;
+function gallery(){if(galDone)return;galDone=true;$('gal').innerHTML=GAL.map((g,i)=>`<div class="gi sk" data-g="${g.k}" style="animation-delay:${i*50}ms"><video muted loop playsinline autoplay preload="metadata" poster="gallery/${g.k}.jpg" src="gallery/${g.k}.mp4"></video><div class="cap">${esc(g.n)}<small>🤖 ${g.m}</small></div></div>`).join('');
+ document.querySelectorAll('.gi video').forEach(v=>{const done=()=>v.parentNode.classList.remove('sk');v.addEventListener('loadeddata',done);setTimeout(done,2500)})}
+function tab(k){S.tab=k;document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('on',b.dataset.tab==k));
+ ({create:'pCreate',videos:'pVideos',gallery:'pGallery',invite:'pInvite'});['create','videos','gallery','invite'].forEach(x=>$({create:'pCreate',videos:'pVideos',gallery:'pGallery',invite:'pInvite'}[x]).classList.toggle('hide',x!=k));
+ $({create:'pCreate',videos:'pVideos',gallery:'pGallery',invite:'pInvite'}[k]).classList.add('fade');if(k=='gallery')gallery();render();scrollTo({top:0})}
+// onboarding
+function onboarding(){const SL=[['🎬',L('ברוכים הבאים!','Welcome!'),L('הופכים תמונה או רעיון לסרטון AI קצר — תוך דקה.','Turn a photo or an idea into a short AI video — in about a minute.')],
+ ['🎨',L('בוחרים סגנון','Pick a style'),L('תבניות מוכנות, תיאור חופשי או טקסט בלבד. 5 מודלים לבחירה.','Ready templates, a free description, or just text. 5 models to choose from.')],
+ ['🎁',L('הסרטון הראשון ב-50% הנחה','First video 50% off'),L('ועל כל חבר/ה שמזמינים — קרדיט מתנה.','And gift credit for every friend you invite.')]];
+ $('slides').innerHTML=SL.map(s=>`<div class="sl"><div class="em">${s[0]}</div><h3>${s[1]}</h3><p>${s[2]}</p></div>`).join('');$('dots').innerHTML=SL.map(()=>'<i></i>').join('');
+ const sc=$('slides'),idx=()=>Math.round(Math.abs(sc.scrollLeft)/sc.clientWidth),upd=()=>{const i=idx();document.querySelectorAll('#dots i').forEach((d,j)=>d.classList.toggle('on',j==i));$('onbB').textContent=i==SL.length-1?L('בואו נתחיל ✨','Let’s start ✨'):L('הבא','Next')};
+ sc.addEventListener('scroll',upd,{passive:true});upd();$('onb').classList.remove('hide');tg&&tg.MainButton.hide();
+ $('onbB').onclick=()=>{hap();const i=idx();if(i<SL.length-1)sc.scrollTo({left:(EN?1:-1)*(i+1)*sc.clientWidth,behavior:'smooth'});else{localStorage.setItem('p2v_onb','1');$('onb').classList.add('hide');mainBtn()}}}
+if(tg){tg.MainButton.onClick(next);tg.BackButton.onClick(back);try{tg.setHeaderColor('bg_color');tg.setBackgroundColor('bg_color')}catch(e){}}
+hero();tab('create');
+if(!localStorage.getItem('p2v_onb'))onboarding();
 </script>
 </body>
 </html>
