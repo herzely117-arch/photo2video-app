@@ -51,6 +51,7 @@ h2{font-size:16px;margin:18px 2px 10px;font-weight:800}
 .price{position:absolute;inset-inline-end:10px;top:10px;font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px;background:#0006;color:#fff}
 .tag{font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:999px;background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;margin-inline-start:6px}
 .thumb{height:92px;border-radius:12px;margin:-3px -3px 9px;background:#0003 center/cover}
+.thumb.cov{position:relative;overflow:hidden}.thumb.cov:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#0000 45%,#0008)}.card .price{z-index:2}
 .meter{display:inline-flex;gap:2px;vertical-align:middle;margin:0 3px}.meter span{width:9px;height:5px;border-radius:3px;background:var(--line)}.meter span.on{background:linear-gradient(90deg,var(--acc),var(--acc2))}
 .sum .t{display:flex;justify-content:space-between;padding:9px 2px;border-bottom:1px dashed var(--line);font-size:14px}.sum .t span{color:var(--hint)}
 .sum .total{font-size:18px;font-weight:800;border:0}.sum .total span{color:var(--fg)}
@@ -155,6 +156,7 @@ const MODES=[['photo','📸',L('תמונה ← וידאו','Photo → video'),L(
  ['t2v','🎬',L('טקסט ← וידאו','Text → video'),L('כותבים רעיון ומקבלים סרטון ישירות','Write an idea and get a video directly')]];
 const GAL=[{k:'birthday',n:L('יום הולדת','Birthday'),m:'Wan 2.1'},{k:'new_year',n:L('שנה טובה','New Year'),m:'Seedance'},{k:'product_ad',n:L('פרסומת למוצר','Product ad'),m:'LTX'},
  {k:'fox',n:L('טקסט ← תמונה ← וידאו','Text → image → video'),m:'FLUX + Wan',mode:'flux'},{k:'cinematic',n:L('מצלמה קולנועית','Cinematic camera'),m:'CogVideoX'},{k:'anniversary',n:L('יום נישואין','Anniversary'),m:'Wan 2.1'}];
+const COV=['movie_scene','living_painting','pixar_style','figurine_alive','tilt_shift','particles','flower_burst','drone_flyin','portal','cyberpunk','anime','time_era','old_photo_alive','holiday','smile_wave','dance','video_ai'];
 const ICONS={movie_scene:'🎬',living_painting:'🖼',pixar_style:'✨',figurine_alive:'🧸',tilt_shift:'🏘',particles:'✨',flower_burst:'🌸',drone_flyin:'🚁',portal:'🌀',cyberpunk:'🌃',anime:'🌸',time_era:'⏳',old_photo_alive:'📜',smile_wave:'😊',dance:'💃',cinematic:'🎥',product_ad:'🛍',birthday:'🎂',holiday:'✨',anniversary:'💞',new_year:'🎆'};
 const ML=()=>S.mode=='t2v'?C.v:C.m,curM=()=>ML().find(x=>x.k==S.m);
 const tn=t=>EN&&t.ne?t.ne:t.n,td=t=>EN&&t.de?t.de:t.d;
@@ -174,7 +176,7 @@ function render(){
  $('modes').innerHTML=MODES.map((x,i)=>`<div class="card row ${S.mode==x[0]?'sel':''}" data-mo="${x[0]}" style="animation-delay:${i*40}ms"><div class="ic">${x[1]}</div><div style="flex:1"><b>${x[2]}</b><small>${x[3]}</small></div></div>`).join('');
  $('tplBox').classList.toggle('hide',S.mode!='photo');
  const TR=C.tr||[],tps=[...C.t].sort((a,b)=>((TR.includes(b.h)?2:0)+(b.s||0))-((TR.includes(a.h)?2:0)+(a.s||0)));
- $('tpls').innerHTML=tps.map((t,i)=>{const g=GAL.find(x=>x.k==t.i);return `<div class="card ${S.t==t.h?'sel':''}" data-t="${t.h}" style="animation-delay:${i*30}ms">${g?`<div class="thumb" style="background-image:url(gallery/${g.k}.jpg)"></div>`:`<div class="ic" style="margin-bottom:8px">${ICONS[t.i]||'🎞'}</div>`}<span class="price">${PZ(t.p)}⭐</span><b>${esc(tn(t))}${t.s?`<span class="tag">${L('חג','Seasonal')}</span>`:''}${TR.includes(t.h)?`<span class="tag">🔥 ${L('טרנדי','Trending')}</span>`:''}</b><small>${esc(td(t))}</small></div>`}).join('');
+ $('tpls').innerHTML=tps.map((t,i)=>{const g=GAL.find(x=>x.k==t.i);return `<div class="card ${S.t==t.h?'sel':''}" data-t="${t.h}" style="animation-delay:${i*30}ms">${COV.includes(t.i)?`<div class="thumb cov" style="background-image:url(img/templates/${t.i}.webp)"></div>`:g?`<div class="thumb cov" style="background-image:url(gallery/${g.k}.jpg)"></div>`:`<div class="ic" style="margin-bottom:8px">${ICONS[t.i]||'🎞'}</div>`}<span class="price">${PZ(t.p)}⭐</span><b>${esc(tn(t))}${t.s?`<span class="tag">${L('חג','Seasonal')}</span>`:''}${TR.includes(t.h)?`<span class="tag">🔥 ${L('טרנדי','Trending')}</span>`:''}</b><small>${esc(td(t))}</small></div>`}).join('');
  $('models').innerHTML=ML().map(m=>`<div class="card row ${S.m==m.k?'sel':''}" data-m="${m.k}"><div class="ic">🤖</div><div style="flex:1"><b>${esc(m.l)}</b><small>${L('מהירות','Speed')}${meter(m.speed)} ${L('איכות','Quality')}${meter(m.quality)}</small></div><small>⏱ ${fmt(m.ds[0][2])}</small></div>`).join('');
  const m=curM(),tp=base()||1;
  $('durs').innerHTML=m?m.ds.map(d=>`<div class="card ${S.d==d[0]?'sel':''}" data-d="${d[0]}"><b>${d[0]} ${L('שניות','sec')}</b><small>${PZ(tp+d[1])}⭐ · ${fmt(d[2])}</small></div>`).join(''):''
