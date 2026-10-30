@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Photo2Video</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="i18n.js"></script>
 <script>
 /* Telegram Mini Apps Analytics (TON Builders, required by tApps Center).
    Fill TGA_TOKEN + TGA_APP_NAME from builders.ton.org -> Analytics. Empty = disabled (no-op). */
@@ -94,7 +95,7 @@ a{color:var(--acc)}
 </head>
 <body>
 <div class="wrap" id="app">
- <div class="top"><div class="logo">🎬</div><div><h1>Photo2Video AI</h1><p id="sub"></p></div><span class="sp"></span><span class="chip" id="lgT"></span></div>
+ <div class="top"><div class="logo">🎬</div><div><h1>Photo2Video AI</h1><p id="sub"></p></div><span class="sp"></span><select class="chip" id="lgT" aria-label="Language"></select></div>
  <section id="pCreate">
   <div class="steps"><i></i><i></i><i></i><i></i></div>
   <div id="s0">
@@ -134,16 +135,23 @@ a{color:var(--acc)}
 const tg=window.Telegram&&Telegram.WebApp&&Telegram.WebApp.initData?Telegram.WebApp:null;tg&&tg.ready();tg&&tg.expand();
 let C=null;try{const h=new URLSearchParams(location.hash.slice(1)).get('c');let b=h.replace(/-/g,'+').replace(/_/g,'/');while(b.length%4)b+='=';C=JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(b),c=>c.charCodeAt(0))))}catch(e){}
 const $=id=>document.getElementById(id);
-let LG=localStorage.getItem('p2v_lang')||(C&&C.lg)||((navigator.language||'').startsWith('he')?'he':'en');
-const EN=LG=='en',L=(h,e)=>EN?e:h,AR=EN?'→':'←';
-document.documentElement.lang=LG;document.documentElement.dir=EN?'ltr':'rtl';
+const LGS={en:'🇺🇸 English',ru:'🇷🇺 Русский',pt:'🇧🇷 Português',es:'🇪🇸 Español',hi:'🇮🇳 हिन्दी',id:'🇮🇩 Indonesia',ar:'🇸🇦 العربية',tr:'🇹🇷 Türkçe'};
+const lgOf=c=>{c=(c||'').toLowerCase().split(/[-_]/)[0];return LGS[c]?c:({uk:'ru',be:'ru',kk:'ru',ca:'es',ms:'id',az:'tr',mr:'hi'})[c]||'en'};
+const ADM=C&&C.lg=='he';  // Hebrew UI is admin-only (the bot sends lg=he only to admins)
+let LG=new URLSearchParams(location.search).get('lg')||localStorage.getItem('p2v_lang')||(C&&C.lg)||lgOf((window.Telegram&&Telegram.WebApp&&Telegram.WebApp.initDataUnsafe&&Telegram.WebApp.initDataUnsafe.user||{}).language_code||navigator.language);
+if(!(LGS[LG]||(LG=='he'&&ADM)))LG='en';
+const EN=LG!='he',RTL=LG=='ar'||LG=='he',CAT=(window.I18N&&I18N[LG])||{};
+const T=e=>{if(LG=='en'||e==null)return e;const v=CAT[e];if(v)return v;for(const[k,r]of I18NP){const m=e.match(r);if(m&&CAT[k])return CAT[k].replace(/\{(\d)\}/g,(_,i)=>m[+i+1])}return e};
+const I18NP=Object.keys(CAT).filter(k=>/\{\d\}/.test(k)).map(k=>[k,new RegExp('^'+k.replace(/[.*+?^$()|[\]\\]/g,'\\$&').replace(/\\?\{\d\\?\}/g,'([\\s\\S]*?)')+'$')]);
+const L=(h,e)=>LG=='he'?h:T(e),AR=RTL?'←':'→';
+document.documentElement.lang=LG;document.documentElement.dir=RTL?'rtl':'ltr';
 const dark=tg?tg.colorScheme!='light':!matchMedia('(prefers-color-scheme: light)').matches;document.body.classList.toggle('light',!dark);
 if(tg&&tg.themeParams&&tg.themeParams.bg_color){document.documentElement.style.setProperty('--bg',tg.themeParams.bg_color)}
 const hap=(k)=>{try{k?tg.HapticFeedback.notificationOccurred(k):tg.HapticFeedback.selectionChanged()}catch(e){}};
 function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
 function toast(t){const d=document.createElement('div');d.className='toast';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),1800)}
-$('lgT').textContent=EN?'🇮🇱 עברית':'🇬🇧 English';
-$('lgT').onclick=()=>{hap();localStorage.setItem('p2v_lang',EN?'he':'en');location.reload()};
+$('lgT').innerHTML=Object.entries(Object.assign({},LGS,ADM?{he:'🇮🇱 עברית'}:{})).map(([k,v])=>`<option value="${k}"${k==LG?' selected':''}>${v}</option>`).join('');
+$('lgT').onchange=e=>{hap();localStorage.setItem('p2v_lang',e.target.value);location.reload()};
 $('sub').textContent=L('תמונה או טקסט ← סרטון בשניות ✨','Photo or text → video in seconds ✨');
 if(!C){$('app').insertAdjacentHTML('beforeend',`<div class="glass" style="padding:24px;text-align:center"><h2>${L('פתח/י את האפליקציה מתוך הבוט 🙂','Open the app from the bot 🙂')}</h2><p style="color:var(--hint)">${L('שלח/י לבוט /app','Send /app to the bot')}</p></div>`);$('pCreate').remove();throw 0}
 const U=C.u||{cr:0,ff:0,rc:0,rb:3,bn:[]};
@@ -152,7 +160,7 @@ const DL=C.dl||{},DP=C.dp||{};
 const dlgP=()=>C.tp?0:(DP[S.d>=30?S.d:0]||0);
 const MODES=[['photo','📸',L('תמונה ← וידאו','Photo → video'),L('מעלים תמונה ובוחרים תבנית','Upload a photo and pick a template')],
  ['custom','🪄',L('תמונה + תיאור ← וידאו','Photo + description → video'),L('מעלים תמונה וכותבים מה יקרה בסרטון','Upload a photo and describe what happens')],
- ['series','📺',L('סדרה בפרקים · חדש!','Episodic series · NEW!'),L('דמות וסיפור ← פרק 1, פרק 2… כל פרק ממשיך את הקודם (עד '+(C.sx||10)+')','Character & story → Part 1, Part 2… each continues the last (up to '+(C.sx||10)+')')],
+ ['series','📺',L('סדרה בפרקים · חדש!','Episodic series · NEW!'),L('דמות וסיפור ← פרק 1, פרק 2… כל פרק ממשיך את הקודם (עד '+(C.sx||10)+')',`Character & story → Part 1, Part 2… each continues the last (up to ${C.sx||10})`)],
  ['flux','🖼',L('טקסט ← תמונה ← וידאו','Text → image → video'),L('כותבים רעיון, AI יוצר תמונה ומנפיש אותה','Write an idea; AI creates an image and animates it')],
  ['t2v','🎬',L('טקסט ← וידאו','Text → video'),L('כותבים רעיון ומקבלים סרטון ישירות','Write an idea and get a video directly')]];
 const GAL=[{k:'birthday',n:L('יום הולדת','Birthday'),m:'Wan 2.1'},{k:'new_year',n:L('שנה טובה','New Year'),m:'Seedance'},{k:'product_ad',n:L('פרסומת למוצר','Product ad'),m:'LTX'},
@@ -160,7 +168,7 @@ const GAL=[{k:'birthday',n:L('יום הולדת','Birthday'),m:'Wan 2.1'},{k:'ne
 const COV=['movie_scene','living_painting','pixar_style','figurine_alive','tilt_shift','particles','flower_burst','drone_flyin','portal','cyberpunk','anime','time_era','old_photo_alive','holiday','smile_wave','dance','video_ai'];
 const ICONS={movie_scene:'🎬',living_painting:'🖼',pixar_style:'✨',figurine_alive:'🧸',tilt_shift:'🏘',particles:'✨',flower_burst:'🌸',drone_flyin:'🚁',portal:'🌀',cyberpunk:'🌃',anime:'🌸',time_era:'⏳',old_photo_alive:'📜',smile_wave:'😊',dance:'💃',cinematic:'🎥',product_ad:'🛍',birthday:'🎂',holiday:'✨',anniversary:'💞',new_year:'🎆'};
 const ML=()=>S.mode=='t2v'?C.v:C.m,curM=()=>ML().find(x=>x.k==S.m);
-const tn=t=>EN&&t.ne?t.ne:t.n,td=t=>EN&&t.de?t.de:t.d;
+const tn=t=>EN&&t.ne?T(t.ne):t.n,td=t=>EN&&t.de?T(t.de):t.d;
 const meter=n=>'<span class="meter">'+[1,2,3,4,5].map(i=>`<span class="${i<=n?'on':''}"></span>`).join('')+'</span>';
 function base(){if(S.mode=='flux')return C.fp;if(S.mode=='custom'||S.mode=='series')return C.cp||2;if(S.mode=='t2v')return (C.v[0]||{p:3}).p;const t=C.t.find(x=>x.h==S.t);return t?t.p:0}
 const dsel=()=>{const m=curM();return m?(m.ds.find(x=>x[0]==S.d)||m.ds[0]):null};
@@ -184,10 +192,10 @@ function render(){
  if(m&&S.mode=='series'&&C.lp&&C.lp[m.k])$('durs').innerHTML+=Object.entries(C.lp[m.k]).map(([d,p])=>`<div class="card ${S.d==d?'sel':''}" data-d="${d}"><b>🎞 ${L('פרק ארוך','Long episode')} ~${d} ${L('שניות','sec')}</b><small>${PZ(p)}⭐ · ${L(d/10+' סצנות',d/10+' scenes')} · ${fmt(d/10*150)}</small></div>`).join('');
  $('durBox').classList.toggle('hide',!(m&&m.ds.length>1));
  $('audP').textContent=(C.tp?L('כלול (מצב בדיקה) · ','Included (test mode) · '):`+${C.ap}⭐ · `)+L('מוזיקה/אווירה שנוצרת ב-AI','AI-generated music/ambience');$('sw').classList.toggle('on',!!S.a);$('audBox').classList.toggle('hide',!S.a);
- $('audBox').innerHTML=C.a.map(a=>`<span class="chip ${S.a==a.k?'sel':''}" data-a="${a.k}">${esc(EN&&a.le?a.le:a.l)}</span>`).join('');
+ $('audBox').innerHTML=C.a.map(a=>`<span class="chip ${S.a==a.k?'sel':''}" data-a="${a.k}">${esc(EN&&a.le?T(a.le):a.l)}</span>`).join('');
  const t=S.mode=='photo'?C.t.find(x=>x.h==S.t):null,tname=t?tn(t):MODES.find(x=>x[0]==S.mode)[2];
  if((t||S.mode!='photo')&&m){const pr=disc(),full=price();
-  $('sum').innerHTML=`<div class="t"><span>🎨 ${S.mode=='photo'?L('תבנית','Template'):L('סוג','Type')}</span><b>${esc(tname)}</b></div><div class="t"><span>🤖 ${L('מודל','Model')}</span><b>${esc(m.l)}</b></div><div class="t"><span>⏱ ${L('אורך','Length')}</span><b>${dsel()[0]} ${L('שניות','sec')}</b></div><div class="t"><span>🔊 ${L('סאונד','Sound')}</span><b>${S.a?esc((x=>EN&&x.le?x.le:x.l)(C.a.find(x=>x.k==S.a))):L('ללא','None')}</b></div><div class="t"><span>⌛ ${L('זמן משוער','Estimated time')}</span><b>${fmt(eta()+(S.a?60:0))}</b></div>${S.mode=='series'&&S.g?`<div class="t"><span>🗣 ${L('דיאלוג + מוזיקה','Dialogue + music')}</span><b>+${dlgP()}⭐</b></div>`:''}${pr<full?`<div class="t"><span>🎁 ${L('הנחת סרטון ראשון','First-video discount')}</span><b>−${full-pr}⭐</b></div>`:''}<div class="t total"><span>${L('סה"כ','Total')}</span><span>${pr<full?`<s>${full}⭐</s>`:''}${pr}⭐</span></div>`+(U.cr>=pr?`<div class="note" style="text-align:start">💳 ${L(`יש לך ${U.cr}⭐ קרדיט — אפשר לשלם ממנו בבוט`,`You have ${U.cr}⭐ credit — pay with it in the bot`)}</div>`:'');
+  $('sum').innerHTML=`<div class="t"><span>🎨 ${S.mode=='photo'?L('תבנית','Template'):L('סוג','Type')}</span><b>${esc(tname)}</b></div><div class="t"><span>🤖 ${L('מודל','Model')}</span><b>${esc(m.l)}</b></div><div class="t"><span>⏱ ${L('אורך','Length')}</span><b>${dsel()[0]} ${L('שניות','sec')}</b></div><div class="t"><span>🔊 ${L('סאונד','Sound')}</span><b>${S.a?esc((x=>EN&&x.le?T(x.le):x.l)(C.a.find(x=>x.k==S.a))):L('ללא','None')}</b></div><div class="t"><span>⌛ ${L('זמן משוער','Estimated time')}</span><b>${fmt(eta()+(S.a?60:0))}</b></div>${S.mode=='series'&&S.g?`<div class="t"><span>🗣 ${L('דיאלוג + מוזיקה','Dialogue + music')}</span><b>+${dlgP()}⭐</b></div>`:''}${pr<full?`<div class="t"><span>🎁 ${L('הנחת סרטון ראשון','First-video discount')}</span><b>−${full-pr}⭐</b></div>`:''}<div class="t total"><span>${L('סה"כ','Total')}</span><span>${pr<full?`<s>${full}⭐</s>`:''}${pr}⭐</span></div>`+(U.cr>=pr?`<div class="note" style="text-align:start">💳 ${L(`יש לך ${U.cr}⭐ קרדיט — אפשר לשלם ממנו בבוט`,`You have ${U.cr}⭐ credit — pay with it in the bot`)}</div>`:'');
   const s1=S.mode=='series'?L('בבוט: שם לסדרה, סיפור ודמויות, ותמונה פותחת או טקסט. המחיר הוא לכל פרק','In the bot: series name, story & characters, and an opening photo or text. Price is per episode'):S.mode=='custom'?L('שולחים תמונה וכותבים מה יקרה (שיפור AI בחינם)','Send a photo and describe what happens (free AI improve)'):S.mode=='photo'?L('שולחים תמונה בצ\'אט עם הבוט','Send a photo in the chat'):L('כותבים תיאור בצ\'אט (שיפור AI בחינם)','Type a description in the chat (free AI improve)');
   $('nextL').innerHTML=[['⭐',L('משלמים בכוכבים או בקרדיט','Pay with Stars or credit')],[S.mode=='photo'||S.mode=='custom'?'📸':'✍️',s1],['⚡',L(`הסרטון נוצר (${fmt(eta())}) עם פס התקדמות חי`,`Video is created (${fmt(eta())}) with a live progress bar`)],['📤',L('משתפים עם חברים בלחיצה','Share with friends in one tap')]].map(x=>`<div class="row"><span>${x[0]}</span><span>${x[1]}</span></div>`).join('')}
  $('serX').classList.toggle('hide',S.mode!='series');$('dlgS').classList.toggle('on',!!S.g);$('dlgP').textContent=(C.tp?L('כלול (מצב בדיקה)','Included (test mode)'):`+${dlgP()}⭐ ${L('לפרק','per episode')}`)+' · '+L('דיבוב דמויות + מוזיקת רקע','Character voices + background music');
@@ -235,8 +243,8 @@ function gnRender(){const x=k=>(C.x||[]).find(e=>e.k==k)||{p:'?'},box=$('gnBox')
   .map(g=>`<div class="gnc ${g[1]}" data-gn="${g[0]}"><span class="ge">${g[2]}</span><span class="price">${x(g[0]).p}⭐</span><b>${g[3]}<span class="nw">${L('חדש','NEW')}</span></b><small>${g[4]}</small></div>`).join('')+'</div>';
  if(GS.k){const g=GN[GS.k],R=GS.k=='romantic';
   h+=`<div class="glass gnp"><b>${R?'💕 '+L('רומנטי','Romantic'):'🔥 '+L('נועז','Bold')}</b><p class="note" style="margin:4px 0 0">${R?L('דמויות AI בדיוניות בוגרות בלבד · לבוש מלא · אחיזת ידיים 💞 · בלי העלאת תמונות','AI fictional adult characters only · fully clothed · holding hands 💞 · no photo uploads'):L('PG-13 · דמויות בדיוניות בוגרות · בלי גור ובלי תוכן מיני','PG-13 · fictional adult characters · no gore, nothing sexual')}</p>
-  <h3>${L('סצנה','Scene')}</h3><div class="chips">${g.s.map(s=>`<span class="chip ${GS.o==s[0]?'sel':''}" data-gs="${s[0]}">${esc(EN?s[2]:s[1])}</span>`).join('')}</div>`;
-  g.b.forEach((f,i)=>{h+=`<h3>👫 ${esc(EN?f[2]:f[1])}</h3><div class="chips">${f[3].map((v,j)=>`<span class="chip ${GS.b[i]===j?'sel':''}" data-gb="${i}:${j}">${esc(EN?v[1]:v[0])}</span>`).join('')}<span class="chip ${GS.b[i]==null?'sel':''}" data-gb="${i}:-">🎲</span></div>`});
+  <h3>${L('סצנה','Scene')}</h3><div class="chips">${g.s.map(s=>`<span class="chip ${GS.o==s[0]?'sel':''}" data-gs="${s[0]}">${esc(EN?T(s[2]):s[1])}</span>`).join('')}</div>`;
+  g.b.forEach((f,i)=>{h+=`<h3>👫 ${esc(EN?T(f[2]):f[1])}</h3><div class="chips">${f[3].map((v,j)=>`<span class="chip ${GS.b[i]===j?'sel':''}" data-gb="${i}:${j}">${esc(EN?T(v[1]):v[0])}</span>`).join('')}<span class="chip ${GS.b[i]==null?'sel':''}" data-gb="${i}:-">🎲</span></div>`});
   if(GS.o!='telenovela')h+=`<h3>${L('פרט נוסף (לא חובה)','Extra detail (optional)')}</h3><textarea id="gnX" maxlength="300" placeholder="${R?L('למשל: הם צוחקים מתחת למטריה','e.g. they laugh under an umbrella'):L('למשל: הזומבים רוקדים בקניון','e.g. the zombies dance in the mall')}"></textarea>`;
   h+=`<label class="terms"><input type="checkbox" id="gnT"><span>${L('מאשר/ת: דמויות בדיוניות בוגרות בלבד, תוכן נקי, בלי אנשים אמיתיים.','I confirm: fictional adult characters only, clean content, no real people.')}</span></label><button class="btn" id="gnGo" style="margin-top:10px">${GS.o=='telenovela'?L('📺 התחל טלנובלה בבוט','📺 Start telenovela in the bot'):L('✨ צור בבוט','✨ Create in the bot')}</button></div>`}
  const keep=$('gnX')?$('gnX').value:'';box.innerHTML=h;if($('gnX'))$('gnX').value=keep;
@@ -272,7 +280,7 @@ $('bundles').innerHTML=(U.bn||[]).map((b,i)=>{const n=[5,12,25][i]||'',p=[4,9,18
 // studio
 $('hStu').textContent=L('🎨 סטודיו AI','🎨 AI Studio');$('hEng').textContent=L('🎁 בונוסים ואתגרים','🎁 Bonuses & challenges');
 $('stuN').textContent=L('מוצרי תמונה: רק חפצים, חיות, אוכל או דמויות מצוירות — בלי אנשים אמיתיים. נכשל? הכוכבים חוזרים לקרדיט.','Photo products: objects, pets, food or cartoon characters only — no real people. Failed? Stars go back to your credit.');
-gnRender();$('stu').innerHTML=(C.x||[]).filter(x=>!GN[x.k]).map((x,i)=>`<div class="card" data-x="st-${x.k}" style="animation-delay:${i*30}ms"><div class="ic" style="margin-bottom:8px">${x.e}</div><span class="price">${x.p}⭐</span><b>${esc(EN?x.ne:x.n)}</b><small>${esc(EN?x.de:x.d)}</small></div>`).join('');
+gnRender();$('stu').innerHTML=(C.x||[]).filter(x=>!GN[x.k]).map((x,i)=>`<div class="card" data-x="st-${x.k}" style="animation-delay:${i*30}ms"><div class="ic" style="margin-bottom:8px">${x.e}</div><span class="price">${x.p}⭐</span><b>${esc(EN?T(x.ne):x.n)}</b><small>${esc(EN?T(x.de):x.d)}</small></div>`).join('');
 $('eng').innerHTML=[['checkin','🎁',L('צ\'ק-אין יומי','Daily check-in'),L(`+${(C.g||{}).ci||1}⭐ קרדיט כל יום`,`+${(C.g||{}).ci||1}⭐ credit every day`)],['earn','📲',L('פרסם והרווח','Post & earn'),L(`שתפו סרטון ב-TikTok/Reels וקבלו ${(C.g||{}).er||5}⭐`,`Share a video on TikTok/Reels, get ${(C.g||{}).er||5}⭐`)],['challenge','🏆',L('האתגר השבועי','Weekly challenge'),L(`פרס ${(C.g||{}).cp||50}⭐ לזוכה`,`${(C.g||{}).cp||50}⭐ prize for the winner`)],['trending','🔥',L('טרנדי השבוע','Trending this week'),L('התבניות הכי פופולריות','Most popular templates')]].map(x=>`<div class="card row" data-x="${x[0]}"><div class="ic">${x[1]}</div><div style="flex:1"><b>${x[2]}</b><small>${x[3]}</small></div></div>`).join('');
 // deals
 const sale=()=>DL.sl&&DL.sl.u*1000>Date.now()?DL.sl:null;
@@ -287,7 +295,7 @@ $('dealL').innerHTML=[DL.fd||U.ff?['','🎁',L('הסרטון הראשון ב-50%
  ['share','👥',L('הזמן חבר/ה','Invite a friend'),L(`${DL.rb||U.rb||3}⭐ על כל חבר/ה שמשלם/ת · לחיצה לשיתוף`,`${DL.rb||U.rb||3}⭐ per friend who pays · tap to share`)],
  ['challenge','🏆',L('האתגר השבועי','Weekly challenge'),(DL.ch?esc(DL.ch)+' · ':'')+L(`פרס ${DL.cp||50}⭐`,`${DL.cp||50}⭐ prize`)]].filter(Boolean)
  .map(x=>`<div class="card row" ${x[0]=='share'?'id="dShare"':x[0]?`data-x="${x[0]}"`:''}><div class="ic">${x[1]}</div><div style="flex:1"><b>${x[2]}</b><small>${x[3]}</small></div></div>`).join('');
-$('dealB').innerHTML=(DL.bn||[]).map((b,i)=>`<div class="card row" data-b="${b[0]}"><div class="ic">${['📦','🎁','💎'][i]||'⭐'}</div><div style="flex:1"><b>${esc(EN?b[1].replace(/(\d+) סרטונים במחיר (\d+)/,'$1 videos for the price of $2'):b[1])}</b><small>${L(`משלמים ${b[2]}⭐ ← מקבלים ${b[3]}⭐`,`Pay ${b[2]}⭐ → get ${b[3]}⭐`)}</small></div><span class="tag" dir="ltr">+${b[4]}%</span></div>`).join('');
+$('dealB').innerHTML=(DL.bn||[]).map((b,i)=>`<div class="card row" data-b="${b[0]}"><div class="ic">${['📦','🎁','💎'][i]||'⭐'}</div><div style="flex:1"><b>${esc(EN?T(b[1].replace(/(\d+) סרטונים במחיר (\d+)/,'$1 videos for the price of $2')):b[1])}</b><small>${L(`משלמים ${b[2]}⭐ ← מקבלים ${b[3]}⭐`,`Pay ${b[2]}⭐ → get ${b[3]}⭐`)}</small></div><span class="tag" dir="ltr">+${b[4]}%</span></div>`).join('');
 $('dShare')&&($('dShare').onclick=()=>$('shareB').click());
 if(U.ad){const a=U.ad;$('admBox').classList.remove('hide');
  $('admS').innerHTML=[['👥',L('משתמשים','Users'),a.u],['🧾',L('הזמנות 24ש','Orders 24h'),a.o24],['⭐',L('כוכבים 24ש','Stars 24h'),a.s24],['💵',L('עלות 24ש','Cost 24h'),'$'+a.c24],['📲',L('ממתינים לאישור','Pending earn'),a.pe],['🏆',L('אתגר','Challenge'),a.ch?L('פתוח','open'):L('סגור','closed')]].map(x=>`<div class="t" style="display:flex;justify-content:space-between;padding:4px 0"><span>${x[0]} ${x[1]}</span><b>${x[2]}</b></div>`).join('');
@@ -310,12 +318,12 @@ function onboarding(){const SL=[['🎬',L('ברוכים הבאים!','Welcome!')
  $('slides').innerHTML=SL.map(s=>`<div class="sl"><div class="em">${s[0]}</div><h3>${s[1]}</h3><p>${s[2]}</p></div>`).join('');$('dots').innerHTML=SL.map(()=>'<i></i>').join('');
  const sc=$('slides'),idx=()=>Math.round(Math.abs(sc.scrollLeft)/sc.clientWidth),upd=()=>{const i=idx();document.querySelectorAll('#dots i').forEach((d,j)=>d.classList.toggle('on',j==i));$('onbB').textContent=i==SL.length-1?L('בואו נתחיל ✨','Let’s start ✨'):L('הבא','Next')};
  sc.addEventListener('scroll',upd,{passive:true});upd();$('onb').classList.remove('hide');tg&&tg.MainButton.hide();
- $('onbB').onclick=()=>{hap();const i=idx();if(i<SL.length-1)sc.scrollTo({left:(EN?1:-1)*(i+1)*sc.clientWidth,behavior:'smooth'});else{localStorage.setItem('p2v_onb','1');$('onb').classList.add('hide');mainBtn()}}}
+ $('onbB').onclick=()=>{hap();const i=idx();if(i<SL.length-1)sc.scrollTo({left:(RTL?-1:1)*(i+1)*sc.clientWidth,behavior:'smooth'});else{localStorage.setItem('p2v_onb','1');$('onb').classList.add('hide');mainBtn()}}}
 if(tg){tg.MainButton.onClick(next);tg.BackButton.onClick(back);try{tg.setHeaderColor('bg_color');tg.setBackgroundColor('bg_color')}catch(e){}}
 hero();tab('create');
 if(!localStorage.getItem('p2v_onb'))onboarding();
 </script>
-<script>setTimeout(function(){try{if(C&&C.tp){var b=document.createElement('div');b.textContent=(C.lg=='en'?'🧪 Test mode: every item costs 1⭐':'🧪 מצב בדיקה: כל פריט עולה 1⭐');b.style.cssText='position:sticky;top:0;z-index:99;text-align:center;font-size:12px;font-weight:700;padding:6px;background:linear-gradient(90deg,#7c3aed,#db2777);color:#fff';document.body.prepend(b)}}catch(e){}},300)</script>
+<script>setTimeout(function(){try{if(C&&C.tp){var b=document.createElement('div');b.textContent=L('🧪 מצב בדיקה: כל פריט עולה 1⭐','🧪 Test mode: every item costs 1⭐');b.style.cssText='position:sticky;top:0;z-index:99;text-align:center;font-size:12px;font-weight:700;padding:6px;background:linear-gradient(90deg,#7c3aed,#db2777);color:#fff';document.body.prepend(b)}}catch(e){}},300)</script>
 
 <script>
 // ─── Series screen → bot deep link cs-<genre>-<style>-<lang>-<sub>-<engine>[-<roles>] ───
@@ -327,27 +335,28 @@ const SP=(C&&C.sp)||{kling:231,veof:554,veo:1477},CP=(C&&C.scp)||25;
 const SE=[['kling','🎞','Kling','Kling',L('מהיר וחסכוני · סנכרון שפתיים','Fast & affordable · lip-sync')],
  ['veof','⚡','Veo 3.1 Fast','Veo 3.1 Fast',L('דיבור וסנכרון שפתיים מובנים · 1080p','Native dialogue & lip-sync · 1080p')],
  ['veo','💎','Veo 3.1 Premium','Veo 3.1 Premium',L('האיכות הכי גבוהה · פנים וקולות עקביים','Top quality · consistent faces & voices')]];
-const Q={g:'drama',s:'real',sub:false,e:'veof',r:['ywoman','yman']};
-const pz=n=>C&&C.tp?1:n,nm=x=>EN?x[3]:x[2];
+const Q={g:'drama',s:'real',l:'en',sub:false,e:'veof',r:['ywoman','yman']};
+const pz=n=>C&&C.tp?1:n,nm=x=>EN?T(x[3]):x[2];
 const chips=(arr,key,multi)=>`<div class="chips">${arr.map(x=>`<span class="chip ${(multi?Q[key].includes(x[0]):Q[key]==x[0])?'sel':''}" data-sq="${key}:${x[0]}">${x[1]} ${esc(nm(x))}</span>`).join('')}</div>`;
 function draw(){
  $('srH').textContent=L('🎬 סדרות AI עם דמויות קבועות','🎬 AI series with a recurring cast');
- $('srHs').textContent=L('פרקים אנכיים קצרים עם דיאלוג באנגלית, סנכרון שפתיים ומוזיקה עדינה.','Short vertical episodes with English dialogue, lip-sync and subtle music.');
+ $('srHs').textContent=L('פרקים אנכיים קצרים עם דיאלוג באנגלית, סנכרון שפתיים ומוזיקה עדינה.','Short vertical episodes with dialogue in the language you choose, lip-sync and subtle music.');
  let h=`<div class="glass gnp"><h3>${L('ז׳אנר','Genre')}</h3>${chips(SG,'g')}<h3>${L('סגנון','Style')}</h3>${chips(SS,'s')}`;
- h+=`<h3>${L('שפה','Language')}</h3><div class="chips"><span class="chip sel">🇺🇸 English</span></div>`;
- h+=`<div class="card row" id="srSub" style="margin-top:10px"><div class="ic">🇮🇱</div><div style="flex:1"><b>${L('כתוביות בעברית','Hebrew subtitles')}</b><small>${L('לא חובה · הדיאלוג נשאר באנגלית','Optional · dialogue stays in English')}</small></div><div class="sw ${Q.sub?'on':''}"></div></div>`;
+ h+=`<h3>${L('שפת הדיאלוג','Dialogue language')}</h3><div class="chips">${Object.entries(LGS).map(([k,v])=>`<span class="chip ${Q.l==k?'sel':''}" data-sl="${k}">${v}${k=='en'?' ⭐':''}</span>`).join('')}</div>`;
+ const SUBL=LG=='he'?'he':LG;
+ if(SUBL!=Q.l)h+=`<div class="card row" id="srSub" style="margin-top:10px"><div class="ic">🌐</div><div style="flex:1"><b>${L('כתוביות בשפה שלי','Subtitles in my language')} (${(LGS[SUBL]||'עברית').replace(/^\S+ /,'')})</b><small>${L('לא חובה · הדיאלוג נשאר בשפה שבחרת','Optional · dialogue stays in the chosen language')}</small></div><div class="sw ${Q.sub?'on':''}"></div></div>`;
  h+=`<h3>${L('איכות','Quality tier')}</h3><div class="list">${SE.map(x=>`<div class="card row ${Q.e==x[0]?'sel':''}" data-se="${x[0]}"><div class="ic">${x[1]}</div><div style="flex:1"><b>${x[2]}</b><small>${x[4]}</small></div><span class="price">${pz(SP[x[0]])}⭐ ${L('לפרק','/ep')}</span></div>`).join('')}</div>`;
  h+=`<h3>${L('צוות הדמויות (2–4)','Cast (2–4 characters)')}</h3>${chips(SR,'r',1)}<p class="note">${L('דמויות בדיוניות בלבד · שם, שיער ולבוש בוחרים בבוט','Fictional characters only · name, hair and outfit are set in the bot')} · ${pz(CP)}⭐ ${L('לדמות','per character')}</p>`;
  h+=`<div class="glass sum" style="padding:6px 14px;margin-top:10px"><div class="t"><span>${L('צוות','Cast')}</span>${pz(CP*Math.max(2,Q.r.length))}⭐</div><div class="t total"><span>${L('פרק','Episode')}</span>${pz(SP[Q.e])}⭐</div></div>`;
  h+=`<label class="terms"><input type="checkbox" id="srTm"><span>${L('מאשר/ת: דמויות בדיוניות בלבד, תוכן נקי, בלי אנשים אמיתיים.','I confirm: fictional characters only, clean content, no real people.')}</span></label>`;
  h+=`<button class="btn" id="srGo" style="margin-top:12px">${L('המשך בבוט','Continue in bot')} ${AR}</button></div>`;
  $('srBox').innerHTML=h;
- $('srSub').onclick=()=>{Q.sub=!Q.sub;hap();draw()};
+ if($('srSub'))$('srSub').onclick=()=>{Q.sub=!Q.sub;hap();draw()};
  $('srGo').onclick=()=>{if(!$('srTm').checked){hap('error');$('srTm').parentNode.style.color='#ef4444';return}
-  go(['cs',Q.g,Q.s,'en',Q.sub?'he':'none',Q.e,Q.r.join('.')].join('-'))};
+  go(['cs',Q.g,Q.s,Q.l,Q.sub&&(LG=='he'?'he':LG)!=Q.l?(LG=='he'?'he':LG):'none',Q.e,Q.r.join('.')].join('-'))};
 }
-document.addEventListener('click',e=>{const c=e.target.closest('[data-sq],[data-se]');if(!c||!$('srBox').contains(c))return;hap();
- if(c.dataset.se)Q.e=c.dataset.se;else{const[k,v]=c.dataset.sq.split(':');if(k=='r'){const i=Q.r.indexOf(v);if(i>=0){if(Q.r.length>2)Q.r.splice(i,1)}else if(Q.r.length<4)Q.r.push(v)}else Q[k]=v}draw()});
+document.addEventListener('click',e=>{const c=e.target.closest('[data-sq],[data-se],[data-sl]');if(!c||!$('srBox').contains(c))return;hap();
+ if(c.dataset.sl)Q.l=c.dataset.sl;else if(c.dataset.se)Q.e=c.dataset.se;else{const[k,v]=c.dataset.sq.split(':');if(k=='r'){const i=Q.r.indexOf(v);if(i>=0){if(Q.r.length>2)Q.r.splice(i,1)}else if(Q.r.length<4)Q.r.push(v)}else Q[k]=v}draw()});
 window.drawSeries=draw;draw();
 })();
 </script>
