@@ -216,10 +216,10 @@ function next(){if(!okStep()){if(S.step==3){hap('error');(tg?tg.showAlert.bind(t
  if(S.step<3){S.step++;if(S.step==2&&S.mode=='series')S.step=3;render();scrollTo({top:0,behavior:'smooth'});return}
 if(S.mode=='series'){const v=id=>$(id).value.trim();handoff({a:'sr',m:S.m,d:S.d||dsel()[0],g:S.g?1:0,t:v('srT'),s:v('srS'),i:v('srI'),st:S.st,tc:1,lg:LG},'series');return}
  go(`app-${S.mode=='photo'?S.t:S.mode}-${S.m}-${dsel()[0]}-${S.a||'none'}-1-${LG}`)}
-// app → bot handoff: sendData when launched from a keyboard button, else a ≤64-char base64url deep link (drop idea, story, title… until it fits), else the plain flow
+// app → bot handoff: sendData only when launched from a reply-keyboard button (initData is empty there; menu/inline/startapp launches silently drop sendData), else a ≤64-char base64url deep link (drop idea, story, title… until it fits), else the plain flow
 const b64u=s=>btoa(String.fromCharCode(...new TextEncoder().encode(s))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
 function handoff(d,fb,direct){hap('success');const full=JSON.stringify(d);
- if(tg&&!(tg.initDataUnsafe||{}).query_id){try{tg.sendData(full);return}catch(e){}}
+ if(tg&&tg.sendData&&!tg.initData){try{tg.sendData(full);return}catch(e){}}
  if(direct){if(d.x)toast(L('נשלים את הפרטים בבוט','We’ll finish the details in the bot'));go(fb);return}
  const o={...d};for(const k of ['','i','s','t','lg','st']){if(k)delete o[k];for(const z of Object.keys(o))if(o[z]===''||o[z]===0&&z=='g')delete o[z];const p='j-'+b64u(JSON.stringify(o));if(p.length<=64){if(k&&['i','s','t'].includes(k))toast(L('נשלים את הפרטים בבוט','We’ll finish the details in the bot'));go(p);return}}
  go(fb)}
